@@ -1,0 +1,95 @@
+{% extends "base_dash.html" %}
+{% load static %}
+
+{% block extra_css %}
+  {{ block.super }}
+  <!-- Bootstrap SOLO en esta vista -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{% static 'css/migym-theme.css' %}">
+{% endblock %}
+
+{% block page_content %}
+<div class="container-fluid py-3">
+
+  <section class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h1 class="h3 mb-1">Editar socio</h1>
+      <p class="text-body-secondary m-0">
+        Modificá los datos y guardá los cambios.
+      </p>
+    </div>
+    <div>
+      <!-- Cancelar: confirmación para descartar cambios -->
+      <a href="{% url 'socios:lista' %}"
+         class="btn btn-link"
+         data-confirm="Tenés cambios sin guardar. ¿Descartar y volver a la lista?"
+         data-confirm-ok="Descartar"
+         data-confirm-cancel="Seguir editando">
+        Cancelar
+      </a>
+    </div>
+  </section>
+
+  <section class="card shadow-sm">
+    <div class="card-body">
+
+      <!-- Aviso de cambios sin guardar -->
+      <form method="post" action="" data-unsaved-warning="true" class="row g-3">
+        {% csrf_token %}
+
+        {# Si usás un ModelForm, podés renderizar campo por campo o todo el form: #}
+        {{ form.as_p }}
+
+        <div class="d-flex gap-2 mt-2">
+          <button type="submit" class="btn btn-primary">
+            Guardar cambios
+          </button>
+
+          <a href="{% url 'socios:lista' %}"
+             class="btn btn-outline-secondary"
+             data-confirm="Tenés cambios sin guardar. ¿Descartar y volver?"
+             data-confirm-ok="Descartar"
+             data-confirm-cancel="Seguir editando">
+            Cancelar
+          </a>
+        </div>
+      </form>
+
+    </div>
+  </section>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  {{ block.super }}
+  <!-- Bootstrap SOLO en esta vista -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Aviso por cambios sin guardar (solo en esta página) -->
+  <script>
+  (function(){
+    const forms = document.querySelectorAll('form[data-unsaved-warning="true"]');
+    forms.forEach(form => {
+      let dirty = false;
+
+      // Marcar como "sucio" ante cualquier cambio en los campos
+      form.addEventListener('change', () => { dirty = true; }, {capture:true});
+      form.addEventListener('input',  () => { dirty = true; }, {capture:true});
+
+      // Si se envía, no avisamos
+      form.addEventListener('submit', () => { dirty = false; });
+
+      // Aviso al salir/recargar
+      window.addEventListener('beforeunload', function(e){
+        if (!dirty) return;
+        e.preventDefault();
+        e.returnValue = '';
+      });
+
+      // Si hacen click en un enlace de cancelar sin guardar, el data-confirm global ya lo intercepta.
+      // Si querés cancelar sin confirmación, eliminá los data-confirm de los enlaces.
+    });
+  })();
+  </script>
+{% endblock %}

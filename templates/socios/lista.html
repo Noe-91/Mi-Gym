@@ -17,7 +17,12 @@
       <p class="text-body-secondary m-0">Listado y búsqueda por apellido.</p>
     </div>
     <div>
-      <a href="{% url 'socios:socios_crear' %}" class="btn btn-primary">+ Nuevo socio</a>
+      <!-- Confirmación al iniciar alta de un nuevo socio -->
+      <a href="{% url 'socios:socios_crear' %}"
+         class="btn btn-primary"
+         data-confirm="¿Crear un nuevo socio?"
+         data-confirm-ok="Sí, crear"
+         data-confirm-cancel="Cancelar">+ Nuevo socio</a>
     </div>
   </section>
 
@@ -51,7 +56,7 @@
             <th>Nombre</th>
             <th>Sucursal</th>
             <th>Estado</th>
-            <th class="text-end" style="width:160px">Acciones</th>
+            <th class="text-end" style="width:220px">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -62,9 +67,24 @@
             <td>{{ s.user.first_name }}</td>
             <td>{{ s.sucursal }}</td>
             <td>{{ s.estado }}</td>
-            <td class="text-end">
+            <td class="text-end d-flex justify-content-end gap-2">
               <a class="btn btn-sm btn-secondary" href="{% url 'socios:detalle' s.pk %}">Ver</a>
-              <a class="btn btn-sm btn-primary" href="{% url 'socios:editar' s.pk %}">Editar</a>
+
+              <!-- Confirmación para entrar a editar (opcional) -->
+              <a class="btn btn-sm btn-primary"
+                 href="{% url 'socios:editar' s.pk %}"
+                 data-confirm="¿Editar datos de {{ s.user.get_full_name|default:s.user.username }}?"
+                 data-confirm-ok="Editar"
+                 data-confirm-cancel="Cancelar">Editar</a>
+              <form method="post"
+                    action="{% url 'socios:eliminar' s.pk %}"
+                    class="d-inline"
+                    data-confirm="¿Eliminar al socio {{ s.user.get_full_name|default:s.user.username }}? Esta acción no se puede deshacer."
+                    data-confirm-ok="Eliminar"
+                    data-confirm-cancel="Cancelar">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+              </form>
             </td>
           </tr>
           {% empty %}

@@ -16,9 +16,33 @@
       <h1 class="h3 mb-1">Socio: {{ socio.user.get_full_name|default:socio.user.username }}</h1>
       <p class="text-body-secondary m-0">Detalle general y suscripciones.</p>
     </div>
-    <div class="d-flex gap-2">
-      <a href="{% url 'socios:editar' socio.pk %}" class="btn btn-outline-primary">Editar</a>
-      <a href="{% url 'socios:suscripcion_crear' socio.id %}" class="btn btn-primary">+ Nueva suscripción</a>
+
+    <!-- ===== Acciones (con confirmaciones) ===== -->
+    <div class="d-flex gap-2 align-items-center">
+      <a href="{% url 'socios:editar' socio.pk %}" class="btn btn-outline-primary">
+        Editar
+      </a>
+
+      <!-- Confirmación antes de iniciar el alta de una NUEVA suscripción -->
+      <a href="{% url 'socios:suscripcion_crear' socio.id %}"
+         class="btn btn-primary"
+         data-confirm="¿Crear una nueva suscripción para {{ socio.user.get_full_name|default:socio.user.username }}?"
+         data-confirm-ok="Sí, crear"
+         data-confirm-cancel="Cancelar">
+        + Nueva suscripción
+      </a>
+
+      <!-- ELIMINAR socio (POST + confirmación). Ajustá el url name si difiere. -->
+      <form method="post"
+            action="{% url 'socios:eliminar' socio.pk %}"
+            class="d-inline"
+            data-confirm="¿Eliminar al socio {{ socio.user.get_full_name|default:socio.user.username }}? Esta acción no se puede deshacer."
+            data-confirm-ok="Eliminar"
+            data-confirm-cancel="Cancelar">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-danger">Eliminar</button>
+      </form>
+
       <a href="{% url 'socios:lista' %}" class="btn btn-link">Volver</a>
     </div>
   </section>
@@ -74,4 +98,25 @@
 {% block extra_js %}
   {{ block.super }}
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  {# === Post-save modal (2A): si venimos de crear con ?created=1 === #}
+  {% if request.GET.created == '1' %}
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    confirmThen(
+      'Socio creado correctamente. ¿Confirmar?',
+      function () {
+        var cont = document.querySelector('.container-fluid') || document.body;
+        var ok = document.createElement('div');
+        ok.className = 'alert alert-success mt-3';
+        ok.textContent = '¡El usuario fue creado correctamente Bienvenid@!';
+        cont.prepend(ok);
+        setTimeout(function(){ ok.remove(); }, 4000);
+      },
+      'OK',
+      'Cerrar'
+    );
+  });
+  </script>
+  {% endif %}
 {% endblock %}

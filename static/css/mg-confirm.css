@@ -1,0 +1,27 @@
+/* ===== Modal de Confirmación (Vanilla, sin Bootstrap) ===== */
+/* Estilos básicos para el modal (oscuro, MiGym) */
+.mg-confirm-backdrop{
+  position: fixed; inset: 0; background: rgba(0,0,0,.6);
+  display: none; align-items: center; justify-content: center; z-index: 2000;
+}
+.mg-confirm{
+  width: min(520px, 92vw); background:#0b0b0b; color:#fff;
+  border:1px solid var(--orange, #ff6a00); border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.6); overflow: hidden;
+}
+.mg-confirm__head{
+  padding: .9rem 1rem; border-bottom:1px solid rgba(255,255,255,.06);
+  font-weight: 600;
+}
+.mg-confirm__body{ padding: 1rem; color:#e5e7eb; }
+.mg-confirm__foot{
+  display:flex; gap:.5rem; justify-content:flex-end; padding: .9rem 1rem;
+  border-top:1px solid rgba(255,255,255,.06);
+}
+.mg-btn{
+  border:1px solid transparent; background:#1f2937; color:#fff;
+  padding:.55rem .95rem; border-radius:10px; cursor:pointer;
+}
+.mg-btn:hover{ filter:brightness(1.05) }
+.mg-btn--danger{ background:#b91c1c; border-color:#ef4444 }
+.mg-btn--muted{ background:#374151 }
