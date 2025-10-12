@@ -43,15 +43,21 @@ def crear_socio(request):
 
 @login_required
 def editar_socio(request, pk):
+    from .forms import SocioEditForm  # importá el nuevo form
+
     socio = get_object_or_404(Socio, pk=pk)
+
     if request.method == "POST":
-        form = SocioForm(request.POST, instance=socio)
+        form = SocioEditForm(request.POST, instance=socio)
         if form.is_valid():
             form.save()
+            messages.success(request, "✅ Datos del socio actualizados correctamente.")
             return redirect("socios:detalle", pk=socio.pk)
     else:
-        form = SocioForm(instance=socio)
-    return render(request, "socios/form_socio.html", {"form": form})
+        form = SocioEditForm(instance=socio)
+
+    return render(request, "socios/editar.html", {"form": form, "socio": socio})
+
 
 @login_required
 def crear_suscripcion(request, socio_id=None):

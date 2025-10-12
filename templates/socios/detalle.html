@@ -100,23 +100,75 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   {# === Post-save modal (2A): si venimos de crear con ?created=1 === #}
-  {% if request.GET.created == '1' %}
-  <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    confirmThen(
-      'Socio creado correctamente. ¿Confirmar?',
-      function () {
-        var cont = document.querySelector('.container-fluid') || document.body;
-        var ok = document.createElement('div');
-        ok.className = 'alert alert-success mt-3';
-        ok.textContent = '¡El usuario fue creado correctamente Bienvenid@!';
-        cont.prepend(ok);
-        setTimeout(function(){ ok.remove(); }, 4000);
-      },
-      'OK',
-      'Cerrar'
-    );
-  });
-  </script>
-  {% endif %}
+{% if request.GET.created == '1' %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  showOk('¡El usuario fue creado correctamente!', 'OK');
+
+  function showOk(message, okText){
+    // Backdrop
+    var backdrop = document.createElement('div');
+    backdrop.style.position = 'fixed';
+    backdrop.style.inset = '0';
+    backdrop.style.background = 'rgba(0,0,0,.6)';
+    backdrop.style.display = 'flex';
+    backdrop.style.alignItems = 'center';
+    backdrop.style.justifyContent = 'center';
+    backdrop.style.zIndex = '2050';
+
+      // Card
+    var card = document.createElement('div');
+    card.style.width = 'min(520px,92vw)';
+    card.style.background = '#0b0b0b';
+    card.style.color = '#fff';
+    card.style.border = '1px solid var(--orange, #ff9800)';
+    card.style.borderRadius = '14px';
+    card.style.boxShadow = '0 20px 60px rgba(0,0,0,.6)';
+    card.setAttribute('role','dialog');
+    card.setAttribute('aria-modal','true');
+
+    // Head
+    var head = document.createElement('div');
+    head.style.padding = '.9rem 1rem';
+    head.style.borderBottom = '1px solid rgba(255,255,255,.06)';
+    head.style.fontWeight = '600';
+    head.textContent = 'Aviso';
+
+    // Body
+    var body = document.createElement('div');
+    body.style.padding = '1rem';
+    body.textContent = message || 'Operación realizada.';
+
+    // Foot
+    var foot = document.createElement('div');
+    foot.style.display = 'flex';
+    foot.style.justifyContent = 'flex-end';
+    foot.style.gap = '.5rem';
+    foot.style.padding = '.9rem 1rem';
+    foot.style.borderTop = '1px solid rgba(255,255,255,.06)';
+
+    var ok = document.createElement('button');
+    ok.textContent = okText || 'OK';
+    ok.style.border = '1px solid #ff9800';
+    ok.style.background = '#ff9800';
+    ok.style.color = '#fff';
+    ok.style.padding = '.55rem .95rem';
+    ok.style.borderRadius = '10px';
+    ok.style.cursor = 'pointer';
+
+    ok.addEventListener('click', function(){
+      document.body.removeChild(backdrop);
+    });
+
+    foot.appendChild(ok);
+    card.appendChild(head);
+    card.appendChild(body);
+    card.appendChild(foot);
+    backdrop.appendChild(card);
+    document.body.appendChild(backdrop);
+    ok.focus();
+ }
+});
+</script>
+{% endif %}
 {% endblock %}

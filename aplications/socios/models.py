@@ -2,8 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User
-
-# Create your models here.
+from django.core.validators import RegexValidator
 
 User = settings.AUTH_USER_MODEL
 
@@ -28,12 +27,30 @@ class Sucursal(models.Model):
 
 
 class Socio(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name="perfil_socio")
-    nombre = models.CharField(max_length=100,  default="")
-    apellido = models.CharField(max_length=100,  default="")
-    email = models.EmailField(unique=True,  default="")
-    dni = models.CharField(max_length=20, unique=True)
-    sucursal = models.ForeignKey(Sucursal, on_delete=models.PROTECT,max_length=100)
+    dni_validator = RegexValidator(
+        r"^\d{7,10}$",
+        message="El DNI debe contener solo números (7 a 10 dígitos)."
+    )
+
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="perfil_socio"
+    )
+
+    nombre = models.CharField(max_length=100, default="")
+    apellido = models.CharField(max_length=100, default="")
+    email = models.EmailField(unique=True, default="")
+    dni = models.CharField(
+        max_length=20,
+        unique=True,
+        validators=[dni_validator],
+        help_text="Este será tu usuario para iniciar sesión."
+    )
+
+    sucursal = models.ForeignKey(Sucursal, on_delete=models.PROTECT, max_length=100)
     estado = models.CharField(max_length=20, default="Activo")
     fecha_alta = models.DateField(auto_now_add=True)
 
