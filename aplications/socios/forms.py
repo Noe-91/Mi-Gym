@@ -2,64 +2,38 @@ from django import forms
 from django.contrib.auth.models import User
 from .models import Socio, Suscripcion
 
+
+# =======================
+# Crear socio
+# =======================
 class SocioForm(forms.ModelForm):
+    # datos del User (obligatorios)
     nombre   = forms.CharField(label="Nombre",  max_length=150, required=True)
     apellido = forms.CharField(label="Apellido", max_length=150, required=True)
     email    = forms.EmailField(label="Email", required=True)
-    username = forms.CharField(
-        label="Usuario", max_length=150, required=False,
-        help_text="Si lo dejás vacío, se usará la parte antes de @ del email."
-    )
 
     class Meta:
         model = Socio
-        fields = ["dni", "sucursal", "estado", "nombre", "apellido", "email", "username"]
-    
-    widgets = {
+        fields = ["dni", "sucursal", "estado", "nombre", "apellido", "email"]
+        widgets = {
             "dni": forms.TextInput(attrs={
-                "class": "form-control", "placeholder": "DNI",
-                "inputmode": "numeric", "pattern": r"[0-9]*", "required": "required",
+                "class": "form-control",
+                "placeholder": "DNI",
+                "inputmode": "numeric",
+                "pattern": r"[0-9]*",
+                "required": "required",
             }),
             "sucursal": forms.Select(attrs={"class": "form-select", "required": "required"}),
             "estado": forms.Select(attrs={"class": "form-select", "required": "required"}),
         }
-
-    def clean_dni(self):
-        dni = str(self.cleaned_data.get("dni", "")).strip()
-        if not dni.isdigit():
-            raise forms.ValidationError("El DNI debe contener solo números.")
-        if not (7 <= len(dni) <= 10):
-            raise forms.ValidationError("El DNI debe tener entre 7 y 10 dígitos.")
-        return dni
-
-    def save(self, commit=True):
-        socio = super().save(commit=False)
-
-        first_name = self.cleaned_data["nombre"].strip()
-        last_name  = self.cleaned_data["apellido"].strip()
-        email      = self.cleaned_data["email"].strip()
-        username   = self.cleaned_data["dni"].strip()
-        user = User.objects.create_user(
-            username=username,
-            password=User.objects.make_random_password(),
-            email=email
-        )
-        user.first_name = first_name
-        user.last_name  = last_name
-        user.save()
-
-        socio.user = user
-        if commit:
-            socio.save()
-        return socio
+        labels = {"dni": "DNI", "sucursal": "Sucursal", "estado": "Estado"}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.fields["nombre"].widget.attrs.update({"class": "form-control", "placeholder": "Nombre", "required": "required"})
         self.fields["apellido"].widget.attrs.update({"class": "form-control", "placeholder": "Apellido", "required": "required"})
         self.fields["email"].widget.attrs.update({"class": "form-control", "placeholder": "Email", "required": "required"})
-        self.fields["username"].widget.attrs.update({"class": "form-control", "placeholder": "Usuario (opcional)"})
+        # refuerzo en backend
         self.fields["dni"].required = True
         self.fields["sucursal"].required = True
         self.fields["estado"].required = True
@@ -72,31 +46,18 @@ class SocioForm(forms.ModelForm):
             raise forms.ValidationError("El DNI debe tener entre 7 y 10 dígitos.")
         return dni
 
-    def _unique_username(self, base: str) -> str:
-        base = (base or "").strip() or "usuario"
-        candidate, i = base, 1
-        while User.objects.filter(username=candidate).exists():
-            candidate = f"{base}{i}"
-            i += 1
-        return candidate
-
     def save(self, commit=True):
+        """Crea el User con username = DNI y SIN contraseña usable (Opción A)."""
         socio = super().save(commit=False)
 
-        first_name = self.cleaned_data.get("nombre", "").strip()
-        last_name  = self.cleaned_data.get("apellido", "").strip()
-        email      = self.cleaned_data.get("email", "").strip()
-        username   = self.cleaned_data.get("username", "").strip()
+        first_name = self.cleaned_data["nombre"].strip()
+        last_name  = self.cleaned_data["apellido"].strip()
+        email      = self.cleaned_data["email"].strip()
+        username   = self.cleaned_data["dni"].strip()  # login por DNI
 
-        if not username:
-            username = email.split("@", 1)[0] if ("@" in email) else "usuario"
-        username = self._unique_username(username)
-
-        user = User.objects.create_user(
-            username=username,
-            password=User.objects.make_random_password(),
-            email=email
-        )
+        # crear usuario sin password utilizable (el usuario luego hará 'olvidé mi contraseña')
+        user = User.objects.create_user(username=username, email=email)
+        user.set_unusable_password()
         user.first_name = first_name
         user.last_name  = last_name
         user.save()
@@ -106,6 +67,10 @@ class SocioForm(forms.ModelForm):
             socio.save()
         return socio
 
+
+# =======================
+# Editar socio
+# =======================
 class SocioEditForm(forms.ModelForm):
     first_name = forms.CharField(label="Nombre",  max_length=150, required=True)
     last_name  = forms.CharField(label="Apellido", max_length=150, required=True)
@@ -163,7 +128,11 @@ class SocioEditForm(forms.ModelForm):
             u.email      = self.cleaned_data.get("email",      u.email)
             u.save()
         return socio
-    
+
+
+# =======================
+# Suscripción
+# =======================
 class SuscripcionForm(forms.ModelForm):
     class Meta:
         model = Suscripcion
