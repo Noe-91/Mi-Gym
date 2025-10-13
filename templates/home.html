@@ -1,0 +1,221 @@
+{% extends "base_home.html" %}
+{% load static %}
+
+{% block title %}MiGym – Entrená distinto{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{ --mg-bg:#0e0e0f; --mg-panel:#151516; --mg-panel2:#1b1c1d; --mg-text:#f3f3f3; --mg-muted:#b6b6b6; --mg-orange:#ff7a00; --mg-teal:#1cc6d3; }
+  body{ background:var(--mg-bg); color:var(--mg-text); }
+   .hero {
+    position: relative;
+    width: 100%;
+    min-height: 92svh;           /* ocupa casi toda la vista, sin romper el resto */
+    overflow: hidden;
+    background: #000;            /* no afecta otras secciones */
+  }
+  .hero__bg {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    /* mucho más claro que antes */
+    filter: brightness(.78) contrast(1.05);
+    transform: scale(1.01);      /* evita “bandas” en algunos móviles */
+  }
+  /* oscurecido SUAVE SOLO abajo para contraste del texto */
+  .hero::after{
+    content:""; position:absolute; left:0; right:0; bottom:0; top:40%;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.55) 100%);
+    pointer-events:none;
+  }
+  .hero__inner{
+    position: relative;          /* por encima del overlay */
+    display: grid; place-items: center;
+    min-height: inherit;
+    padding-inline: clamp(16px, 4vw, 28px);
+  }
+  .hero__content{
+    width: min(92vw, 900px);
+    text-align: center; color: #fff;
+  }
+  .hero__title{
+    font-weight: 800; line-height: 1.12; margin: 0 0 .6rem;
+    font-size: clamp(2rem, 5.2vw, 3.6rem);
+  }
+  .hero__title .o{ color:#ff7a00 }
+  .hero__title .t{ color:#1cc6d3 }
+  .hero__lead{
+    color:#e0e0e0; margin:0 0 1.2rem;
+    font-size: clamp(1rem, 2.6vw, 1.25rem);
+  }
+  .hero__cta{ display:flex; gap:.75rem; justify-content:center; flex-wrap:wrap }
+  .btn-grad{
+    background: linear-gradient(90deg, #1cc6d3, #ff7a00);
+    color:#0a0a0b; font-weight:700; border:none;
+    padding:.85rem 1.25rem; border-radius:999px; box-shadow:0 10px 24px rgba(0,0,0,.35);
+    font-size: clamp(.95rem, 2.4vw, 1rem);
+  }
+  .btn-outline{
+    background: transparent; color:#ff7a00; font-weight:700;
+    padding:.8rem 1.2rem; border-radius:999px; border:2px solid #ff7a00;
+    font-size: clamp(.95rem, 2.4vw, 1rem);
+  }
+  /* móvil: botones apilados */
+  @media (max-width: 480px){
+    .btn-grad, .btn-outline{ width:100%; }
+  }
+  .btn-mg{ display:inline-block; font-weight:700; border:none; border-radius:10px;
+           background:linear-gradient(90deg,var(--mg-teal),var(--mg-orange)); color:#0b0b0c;
+           padding:.6rem 1.2rem; box-shadow:0 10px 24px rgba(0,0,0,.45); }
+  .btn-outline{ display:inline-block; border:1px solid var(--mg-orange); color:#fff; padding:.55rem 1.1rem; border-radius:10px; }
+
+  .slider{ position:relative; overflow:hidden; border-top:1px solid rgba(255,122,0,.22);}
+  .slides{ display:flex; transition:transform .6s ease; }
+  .slide{ min-width:100%; height:44vh; min-height:340px; background-size:cover; background-position:center; position:relative; filter:saturate(.9) contrast(.95);}
+  .slide::before{ content:""; position:absolute; inset:0; background:linear-gradient(90deg, rgba(0,0,0,.68), rgba(0,0,0,.20) 60%, rgba(0,0,0,.68)); }
+  .slide-cap{ position:absolute; inset:0; display:grid; place-items:center; text-align:center; padding:1rem }
+  .slider .ctrl{ position:absolute; top:50%; transform:translateY(-50%); background:#0008;
+                 border:1px solid rgba(255,122,0,.45); color:#fff; width:42px; height:42px;
+                 border-radius:10px; display:grid; place-items:center; cursor:pointer; }
+  .prev{ left:14px } .next{ right:14px }
+
+  .wrap{ width:min(1100px,92vw); margin:0 auto } .section{ padding:48px 0 }
+  .section-title{ font-weight:800; letter-spacing:.3px; margin-bottom:18px }
+  .grid{ display:grid; gap:14px } @media (min-width:768px){ .grid-3{ grid-template-columns:repeat(3,1fr) } }
+  .service{ background:#151516; border:1px solid rgba(255,122,0,.22); border-radius:16px; padding:20px; transition:.18s; }
+  .service:hover{ transform:translateY(-3px); box-shadow:0 16px 40px rgba(0,0,0,.35) }
+  .muted{ color:var(--mg-muted) }
+  .card{ background:#1b1c1d; border:1px solid rgba(28,198,211,.25); border-radius:16px; overflow:hidden; transition:.2s }
+  .card:hover{ transform:translateY(-4px) } .card img{ width:100%; height:180px; object-fit:cover }
+  .meta{ color:var(--mg-muted) }
+  .testi{ background:linear-gradient(180deg,#151516,#121314); border:1px solid rgba(255,122,0,.22); border-radius:16px; padding:20px }
+  .stars{ color:#ffcc66 }
+  .cta{ background: radial-gradient(800px 400px at 50% -20%, rgba(28,198,211,.12), transparent),
+                   radial-gradient(600px 350px at 50% 120%, rgba(255,122,0,.12), transparent),
+                   linear-gradient(180deg, #111213, #0d0e0f);
+        border:1px solid var(--mg-orange); border-radius:16px; padding:26px; text-align:center;
+        box-shadow:0 0 0 6px rgba(255,122,0,.06);}
+</style>
+{% endblock %}
+
+{% block content %}
+  <!-- HERO -->
+<section class="hero" aria-label="Portada MiGym">
+  <img class="hero__bg" src="{% static 'img/fondo_login.png' %}" alt="">
+  <div class="hero__inner">
+    <div class="hero__content">
+      <h1 class="hero__title">
+        Entrená con tecnología.<br>
+        <span class="o">Viví</span> <span class="t">MiGym</span>.
+      </h1>
+      <p class="hero__lead">Planes flexibles, seguimiento inteligente y motivación real.</p>
+      <div class="hero__cta">
+        <a href="#" class="btn-grad">Comunicate con nosotros</a>
+        <a href="#planes" class="btn-outline">Ver planes</a>
+      </div>
+    </div>
+  </div>
+</section>
+  <!-- SLIDER -->
+{% load static %}
+
+{# resolvemos rutas primero #}
+{% static 'img/slide1.jpg' as slide1 %}
+{% static 'img/slide2.jpg' as slide2 %}
+{% static 'img/slide3.jpg' as slide3 %}
+
+<section class="slider" id="mgSlider">
+  <div class="slides" id="mgSlides">
+    <div class="slide" style="background-image:url('{{ slide1 }}')">
+      <div class="slide-cap">
+        <div><h2>Fuerza • Técnica • Comunidad</h2><p class="muted">Instructores certificados en todas las clases.</p></div>
+      </div>
+    </div>
+    <div class="slide" style="background-image:url('{{ slide2 }}')">
+      <div class="slide-cap">
+        <div><h2>Medí tu progreso</h2><p class="muted">Suscripciones simples, métricas claras.</p></div>
+      </div>
+    </div>
+    <div class="slide" style="background-image:url('{{ slide3 }}')">
+      <div class="slide-cap">
+        <div><h2>Espacios premium</h2><p class="muted">Equipamiento de primer nivel en todas las sedes.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="ctrl prev" data-dir="-1" aria-label="Anterior">‹</button>
+  <button class="ctrl next" data-dir="1" aria-label="Siguiente">›</button>
+</section>
+
+
+  <!-- SERVICIOS -->
+  <section class="section">
+    <div class="wrap">
+      <h3 class="section-title">Servicios</h3>
+      <div class="grid grid-3">
+        <div class="service"><h5>🏋️ Entrenamiento guiado</h5><p class="muted">Rutinas personalizadas por instructores certificados.</p></div>
+        <div class="service"><h5>👥 Clases grupales</h5><p class="muted">Funcional, HIIT, yoga y más, todos los días.</p></div>
+        <div class="service"><h5>🔐 Accesos inteligentes</h5><p class="muted">Ingreso rápido y control de ocupación en vivo.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLASES DESTACADAS -->
+  <section class="section">
+    <div class="wrap">
+      <h3 class="section-title">Clases destacadas</h3>
+      <div class="grid grid-3">
+        <div class="card">
+          <img src="{% static 'img/class-funcional.jpg' %}" alt="">
+          <div class="p-3"><h5>Funcional Pro</h5><div class="meta">Intensidad alta · 50'</div></div>
+        </div>
+        <div class="card">
+          <img src="{% static 'img/class-hiit.jpg' %}" alt="">
+          <div class="p-3"><h5>HIIT Xpress</h5><div class="meta">Muy alta · 30'</div></div>
+        </div>
+        <div class="card">
+          <img src="{% static 'img/class-yoga.jpg' %}" alt="">
+          <div class="p-3"><h5>Yoga Flow</h5><div class="meta">Media · 45'</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIOS -->
+  <section class="section">
+    <div class="wrap">
+      <h3 class="section-title">Lo que dicen de MiGym</h3>
+      <div class="grid">
+        <div class="testi"><div style="display:flex;justify-content:space-between"><b>Vicky · Caballito</b><span class="stars">★★★★★</span></div><p class="mt-2 mb-0">Las clases son increíbles y siempre hay lugar gracias al control de ocupación. 💪</p></div>
+        <div class="testi"><div style="display:flex;justify-content:space-between"><b>Mauro · Centro</b><span class="stars">★★★★★</span></div><p class="mt-2 mb-0">Me encantó la app y poder ver mi progreso. Todo muy simple.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section">
+    <div class="wrap">
+      <div class="cta">
+        <h3 class="fw-bold mb-1">¿Listo para empezar?</h3>
+        <p class="muted">Unite hoy y probá 7 días con acceso a todas las clases.</p>
+        <a href="#" class="btn-mg">Quiero mi pase</a>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function(){
+  const track = document.getElementById('mgSlides');
+  const slider = document.getElementById('mgSlider');
+  if(!track || !slider) return;
+  const slides = Array.from(track.children);
+  let i=0;
+  const goto = n => { i=(n+slides.length)%slides.length; track.style.transform=`translateX(${-100*i}%)`; };
+  slider.querySelector('.prev').onclick=()=>goto(i-1);
+  slider.querySelector('.next').onclick=()=>goto(i+1);
+  setInterval(()=>goto(i+1), 10000);
+})();
+</script>
+{% endblock %}
