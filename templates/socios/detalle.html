@@ -8,6 +8,19 @@
   <link rel="stylesheet" href="{% static 'css/migym-theme.css' %}">
 {% endblock %}
 
+{# Inject Django messages into JS array so our toast system can show them #}
+{% if messages %}
+<script>
+window.__django_messages = [
+{% for m in messages %}
+  {message: "{{ m|escapejs }}", tags: "{{ m.tags }}"},
+{% endfor %}
+];
+</script>
+{% else %}
+<script>window.__django_messages = [];</script>
+{% endif %}
+
 {% block page_content %}
 <div class="container-fluid py-3">
 
@@ -23,14 +36,17 @@
         Editar
       </a>
 
-      <!-- Confirmación antes de iniciar el alta de una NUEVA suscripción -->
-      <a href="{% url 'socios:suscripcion_crear' socio.id %}"
-         class="btn btn-primary"
-         data-confirm="¿Crear una nueva suscripción para {{ socio.user.get_full_name|default:socio.user.username }}?"
-         data-confirm-ok="Sí, crear"
-         data-confirm-cancel="Cancelar">
-        + Nueva suscripción
-      </a>
+      <!-- Botón rápido: abre modal para elegir Plan y Monto y crear suscripción (redirige a pagos) -->
+      {% if has_active %}
+        <button type="button" class="btn btn-primary" disabled title="El socio ya tiene una suscripción vigente">
+          Registrar pago
+        </button>
+        <small class="text-warning ms-2">El socio tiene una suscripción vigente.</small>
+      {% else %}
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalRegistrarPago">
+          Registrar pago
+        </button>
+      {% endif %}
 
       <!-- ELIMINAR socio (POST + confirmación). Ajustá el url name si difiere. -->
       <form method="post"
@@ -79,7 +95,7 @@
               <div class="d-flex justify-content-between align-items-center">
                 <div>
                   <div class="fw-semibold">{{ s.plan.nombre }}</div>
-                  <div class="text-body-secondary small">{{ s.fecha_inicio }} → {{ s.fecha_fin }}</div>
+                      <div class="text-body-secondary small">{{ s.fecha_inicio }} → {{ s.fecha_fin }} · ${{ s.plan.precio|floatformat:2 }}</div>
                 </div>
                 <span class="badge bg-secondary">{{ s.estado }}</span>
               </div>
@@ -93,6 +109,50 @@
   </div>
 
 </div>
+
+<!-- Modal: Registrar pago (crear suscripción rápida) -->
+<div class="modal fade" id="modalRegistrarPago" tabindex="-1" aria-labelledby="modalRegistrarPagoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content">
+      <form method="post" action="{% url 'socios:suscripcion_rapida' %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalRegistrarPagoLabel">Registrar pago - crear suscripción</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="socio_id" value="{{ socio.pk }}">
+
+          <div class="mb-3">
+            <label for="id_plan_modal" class="form-label">Plan</label>
+            <select id="id_plan_modal" name="plan_id" class="form-select" required>
+              <option value="">-- Seleccioná un plan --</option>
+              {% for p in planes %}
+                <option value="{{ p.pk }}" data-price="{{ p.precio }}">{{ p.nombre }} ({{ p.precio }})</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="id_monto_modal_display" class="form-label">Monto (opcional)</label>
+            <!-- Visible formatted field -->
+            <input id="id_monto_modal_display" name="monto_display" type="text" class="form-control" placeholder="Dejar vacío para usar el precio del plan">
+            <!-- Hidden real field submitted to server (normalized with dot) -->
+            <input id="id_monto_modal" name="monto" type="hidden">
+          </div>
+
+          <div class="form-text">La suscripción se creará en estado "Pendiente" y luego deberás registrar el pago para activarla.</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Crear y registrar pago</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+    <!-- Toast container -->
+    <div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index:2200"></div>
 {% endblock %}
 
 {% block extra_js %}
@@ -171,4 +231,139 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 {% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Validación cliente para el modal 'Registrar pago'
+  var modal = document.getElementById('modalRegistrarPago');
+  if (!modal) return;
+
+  var form = modal.querySelector('form');
+  var select = modal.querySelector('select[name="plan_id"]');
+  var montoInput = modal.querySelector('input[name="monto"]');
+  var submitBtn = modal.querySelector('button[type="submit"]');
+
+  // Seguridad: si no hay select o submit, no hacemos nada
+  if (!form || !select || !submitBtn) return;
+
+  // Deshabilitar submit hasta que se seleccione un plan
+  function updateSubmitState() {
+    if (select.value && select.value.trim() !== '') {
+      submitBtn.removeAttribute('disabled');
+    } else {
+      submitBtn.setAttribute('disabled', 'disabled');
+    }
+  }
+
+  updateSubmitState();
+
+  select.addEventListener('change', updateSubmitState);
+
+  // Auto-completar monto con el precio del plan seleccionado (si el campo está vacío o se autofilló antes)
+  // Monto: usamos display input + hidden normalizado
+  var montoDisplay = modal.querySelector('#id_monto_modal_display');
+  var montoHidden = modal.querySelector('#id_monto_modal');
+
+  function formatES(value) {
+    try {
+      var n = Number(String(value).replace(/,/g, '.'));
+      if (isNaN(n)) return '';
+      return new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+    } catch (e) { return value; }
+  }
+
+  function normalizeNumberString(str) {
+    if (!str) return '';
+    var s = String(str).trim();
+    // remove spaces
+    s = s.replace(/\s/g, '');
+    // remove thousands separators (.) and replace comma with dot
+    s = s.replace(/\./g, '');
+    s = s.replace(/,/g, '.');
+    // keep only digits, dot and minus
+    s = s.replace(/[^0-9.\-]/g, '');
+    return s;
+  }
+
+  function updateMontoFromPlan() {
+    var opt = select.options[select.selectedIndex];
+    var price = opt ? opt.dataset.price : null;
+    var currentlyAuto = montoDisplay && montoDisplay.dataset.auto === 'true';
+    if (price && montoDisplay && (montoDisplay.value === '' || currentlyAuto)) {
+      montoDisplay.value = formatES(price);
+      montoDisplay.dataset.auto = 'true';
+      if (montoHidden) montoHidden.value = normalizeNumberString(price);
+    }
+  }
+
+  select.addEventListener('change', updateMontoFromPlan);
+
+  if (montoDisplay) {
+    montoDisplay.addEventListener('input', function () {
+      montoDisplay.dataset.auto = 'false';
+      if (montoHidden) montoHidden.value = normalizeNumberString(montoDisplay.value);
+    });
+  }
+
+  form.addEventListener('submit', function (ev) {
+    if (!select.value || select.value.trim() === '') {
+      ev.preventDefault();
+      ev.stopPropagation();
+      // Mostrar toast de advertencia
+      showToast('Por favor seleccioná un plan antes de continuar.', 'warning');
+      return false;
+    }
+    // si hay campo display y hidden, aseguremos que hidden contenga valor normalizado
+    if (montoHidden && montoDisplay) {
+      if (!montoHidden.value && montoDisplay.value) {
+        montoHidden.value = normalizeNumberString(montoDisplay.value);
+      }
+    }
+  });
+
+  // Mostrar mensajes de Django (si los hubiere) como toasts
+  if (window.__django_messages && Array.isArray(window.__django_messages)) {
+    window.__django_messages.forEach(function(m){
+      showToast(m.message, m.tags || 'info');
+    });
+  }
+
+  // showToast helper: crea un toast Bootstrap
+  function showToast(message, kind) {
+    try {
+      var container = document.getElementById('toast-container');
+      if (!container) return alert(message);
+
+      var toastEl = document.createElement('div');
+      toastEl.className = 'toast align-items-center text-bg-dark border-0';
+      toastEl.setAttribute('role', 'status');
+      toastEl.setAttribute('aria-live', 'polite');
+      toastEl.setAttribute('aria-atomic', 'true');
+
+      var toastBody = document.createElement('div');
+      toastBody.className = 'd-flex';
+      var content = document.createElement('div');
+      content.className = 'toast-body';
+      content.textContent = message;
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn-close btn-close-white me-2 m-auto';
+      btn.setAttribute('data-bs-dismiss', 'toast');
+      btn.setAttribute('aria-label', 'Cerrar');
+
+      toastBody.appendChild(content);
+      toastBody.appendChild(btn);
+      toastEl.appendChild(toastBody);
+      container.appendChild(toastEl);
+
+      var t = new bootstrap.Toast(toastEl, { delay: 5000 });
+      t.show();
+    } catch (e) {
+      console.error(e);
+      alert(message);
+    }
+  }
+});
+</script>
 {% endblock %}

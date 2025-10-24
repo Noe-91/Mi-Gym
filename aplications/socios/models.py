@@ -3,6 +3,8 @@ from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
+from django.utils import timezone
+from datetime import timedelta, date
 
 User = settings.AUTH_USER_MODEL
 
@@ -89,14 +91,22 @@ class Plan(models.Model):
 
 
 class Suscripcion(models.Model):
-    ESTADOS = [("Vigente", "Vigente"), ("Vencida", "Vencida"), ("Pausada", "Pausada"), ("Cancelada", "Cancelada")]
+    # Añadimos el estado 'Pendiente' para representar suscripciones creadas pero no pagadas.
+    ESTADOS = [
+        ("Pendiente", "Pendiente de pago"),
+        ("Vigente", "Vigente"),
+        ("Vencida", "Vencida"),
+        ("Pausada", "Pausada"),
+        ("Cancelada", "Cancelada"),
+    ]
 
     socio = models.ForeignKey(Socio, on_delete=models.CASCADE, related_name="suscripciones")
     plan = models.ForeignKey(Plan, on_delete=models.PROTECT, related_name="suscripciones")
-    fecha_inicio = models.DateField()
-    fecha_fin = models.DateField()
+    # Permitir fechas nulas para poder crear la suscripción en estado Pendiente
+    fecha_inicio = models.DateField(null=True, blank=True)
+    fecha_fin = models.DateField(null=True, blank=True)
     monto = models.DecimalField(max_digits=10, decimal_places=2)
-    estado = models.CharField(max_length=20, choices=ESTADOS, default="Vigente")
+    estado = models.CharField(max_length=20, choices=ESTADOS, default="Pendiente")
     auto_renovacion = models.BooleanField(default=False)
 
     class Meta:
@@ -109,3 +119,27 @@ class Suscripcion(models.Model):
 
     def __str__(self):
         return f"{self.socio} - {self.plan} ({self.fecha_inicio}→{self.fecha_fin})"
+
+    def activate(self, start_date: date | None = None):
+        """Activa la suscripción a partir de start_date (o hoy si no se provee).
+
+        Calcula `fecha_fin` usando `plan.duracion_dias` y cambia el `estado` a 'Vigente'.
+        La fecha de fin se calcula como fecha_inicio + duracion_dias - 1 (periodo inclusive).
+        """
+        if start_date is None:
+            start_date = timezone.localdate()
+
+        # Establecer fecha inicio y fin
+        self.fecha_inicio = start_date
+        try:
+            days = int(self.plan.duracion_dias)
+        except Exception:
+            days = 0
+
+        if days > 0:
+            self.fecha_fin = self.fecha_inicio + timedelta(days=days - 1)
+        else:
+            self.fecha_fin = self.fecha_inicio
+
+        self.estado = "Vigente"
+        self.save(update_fields=["fecha_inicio", "fecha_fin", "estado"])

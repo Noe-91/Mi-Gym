@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1 class="h3 mb-1">Suscripciones / Pendientes de pago</h1>
+  <p class="text-body-secondary">Listado de suscripciones que todavía no fueron pagadas.</p>
+
+  <div class="card mt-3">
+    <div class="card-body">
+      {% if suscripciones %}
+      <div class="list-group">
+        {% for s in suscripciones %}
+        <div class="list-group-item d-flex justify-content-between align-items-start">
+          <div>
+            <div class="fw-semibold">{{ s.socio.nombre }} {{ s.socio.apellido }} ({{ s.socio.dni }})</div>
+            <div class="text-muted">Plan: {{ s.plan.nombre }} — Monto: {{ s.monto }}</div>
+          </div>
+          <div class="text-end">
+            <a href="{% url 'socios:detalle' s.socio.pk %}" class="btn btn-sm btn-outline-primary">Ver socio</a>
+            <a href="{% url 'pagos:pagos_crear' %}?suscripcion={{ s.pk }}" class="btn btn-sm btn-primary">Registrar pago</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="alert alert-info">No hay suscripciones pendientes.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

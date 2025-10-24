@@ -13,7 +13,12 @@ def crear_pago(request):
             socio_id = pago.suscripcion.socio_id
             return redirect("socios_detalle", pk=socio_id)
     else:
-        form = PagoForm()
+        # allow prefilling suscripcion via GET param ?suscripcion=<id>
+        initial = {}
+        sus_id = request.GET.get("suscripcion")
+        if sus_id:
+            initial["suscripcion"] = sus_id
+        form = PagoForm(initial=initial)
     return render(request, "pagos/form_pago.html", {"form": form})
 
 @login_required
