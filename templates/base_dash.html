@@ -6,22 +6,13 @@
 {% endblock %}
 
 {% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/nav_home.css' %}?v=20251111a">
+  <link rel="stylesheet" href="{% static 'css/sidebar_admin.css' %}?v=20251111c">
+  <link rel="stylesheet" href="{% static 'css/forms-migym.css' %}?v=20251111e">
   <style>
-    /* Layout con sidebar */
+    /* Compensar navbar fijo */
     body {
-      padding-top: 64px;
-    }
-    
-    .sidebar-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1040;
-    }
-    
-    .sidebar-overlay.show {
-      display: block;
+      padding-top: 64px !important;
     }
     
     /* Botón móvil sidebar */
@@ -29,12 +20,13 @@
       display: none;
       position: fixed;
       top: 12px;
-      right: 15px;
-      z-index: 1050;
+      left: 15px;
+      z-index: 1051;
       width: 45px;
       height: 45px;
-      background: transparent;
-      border: none;
+      background: rgba(0,0,0,0.8);
+      border: 1px solid var(--migym-cyan);
+      border-radius: 8px;
       cursor: pointer;
       flex-direction: column;
       justify-content: center;
@@ -110,157 +102,115 @@
   <script>document.documentElement.setAttribute('data-bs-theme','migym');</script>
 
   <script>
-  /* === SIDEBAR: CONTROL SIMPLE Y FUNCIONAL === */
-  
+  /* === SIDEBAR: CONTROL SIMPLE === */
   document.addEventListener("DOMContentLoaded", () => {
     const body = document.body;
     const sidebar = document.querySelector('.left-sidebar');
     const overlay = document.getElementById('sidebar-overlay');
-    const isMobile = () => window.innerWidth <= 768;
-    
-    // Limpiar localStorage antiguo
-    localStorage.removeItem('sidebarCollapsed');
-    
-    // Función para colapsar
-    function collapseSidebar() {
-      body.classList.add('sidebar-collapsed');
-      console.log("➡️ Sidebar colapsado");
-    }
-    
-    // Función para expandir
-    function expandSidebar() {
-      body.classList.remove('sidebar-collapsed');
-      console.log("⬅️ Sidebar expandido");
-    }
-    
-    // Estado inicial: SIEMPRE colapsado
-    collapseSidebar();
-    
-    // Buscar botones toggle
-    const logo = document.querySelector('#sidebar-toggle') || document.querySelector('.brand-circle');
+    const logo = document.querySelector('.brand-circle');
     const mobileBtn = document.getElementById('mobile-sidebar-toggle');
     
-    // Función toggle para usar en ambos botones
-    function toggleSidebar(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      const isCurrentlyCollapsed = body.classList.contains('sidebar-collapsed');
-      console.log("🖱️ Click en toggle - Estado actual:", isCurrentlyCollapsed ? "colapsado" : "expandido");
-      
-      if (isCurrentlyCollapsed) {
-        expandSidebar();
-      } else {
-        collapseSidebar();
-      }
+    // Agregar clase para ocultar botón del navbar en móvil
+    body.classList.add('has-sidebar');
+    
+    // Función para saber si es móvil
+    const isMobile = () => window.innerWidth <= 768;
+    
+    // Estado inicial: colapsado en móvil, expandido en desktop
+    if (isMobile()) {
+      body.classList.add('sidebar-collapsed');
+    } else {
+      body.classList.remove('sidebar-collapsed');
     }
     
-    // Conectar eventos
+    // Toggle del sidebar
+    function toggleSidebar(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      body.classList.toggle('sidebar-collapsed');
+    }
+    
+    // Click en logo
     if (logo) {
       logo.addEventListener("click", toggleSidebar);
+      logo.style.cursor = 'pointer';
     }
     
+    // Click en botón móvil
     if (mobileBtn) {
       mobileBtn.addEventListener("click", toggleSidebar);
-      console.log("✅ Botón móvil conectado");
     }
     
-    // Cerrar en móvil al hacer click en overlay
+    // Click en overlay (cerrar en móvil)
     if (overlay) {
       overlay.addEventListener('click', function(e) {
         e.preventDefault();
-        e.stopPropagation();
-        if (isMobile()) {
-          collapseSidebar();
+        if (isMobile() && !body.classList.contains('sidebar-collapsed')) {
+          body.classList.add('sidebar-collapsed');
         }
       });
     }
     
-    // Cerrar en móvil al hacer click fuera
+    // Cerrar al hacer click fuera en móvil
     if (sidebar) {
       document.addEventListener('click', function(e) {
-        const isCurrentlyExpanded = !body.classList.contains('sidebar-collapsed');
-        if (isMobile() && isCurrentlyExpanded) {
-          if (!sidebar.contains(e.target) && !logo.contains(e.target)) {
-            collapseSidebar();
+        if (isMobile() && !body.classList.contains('sidebar-collapsed')) {
+          if (!sidebar.contains(e.target) && e.target !== logo && e.target !== mobileBtn) {
+            body.classList.add('sidebar-collapsed');
           }
         }
       });
-      
-      // Prevenir que clicks dentro cierren el sidebar
-      sidebar.addEventListener('click', function(e) {
-        e.stopPropagation();
-      });
     }
     
-    // Cerrar al cambiar a móvil
+    // Ajustar en resize
     window.addEventListener('resize', function() {
-      const isCurrentlyExpanded = !body.classList.contains('sidebar-collapsed');
-      if (isMobile() && isCurrentlyExpanded) {
-        collapseSidebar();
+      if (isMobile() && !body.classList.contains('sidebar-collapsed')) {
+        body.classList.add('sidebar-collapsed');
       }
     });
     
-    // Submenús normales
+    // Submenús
     document.querySelectorAll(".ls-group-toggle").forEach(btn => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
         const group = btn.parentElement;
-        const wasOpen = group.classList.contains("open");
         
-        // Cerrar todos los otros grupos
+        // Cerrar otros
         document.querySelectorAll(".ls-group.open").forEach(g => {
           if(g !== group) g.classList.remove("open");
         });
         
-        // Toggle el grupo actual
+        // Toggle actual
         group.classList.toggle("open");
         
-        // Si se abrió un grupo, expandir el sidebar
-        if(!wasOpen && group.classList.contains("open")){
+        // Expandir sidebar si se abre un grupo
+        if (group.classList.contains("open")) {
           body.classList.remove('sidebar-collapsed');
-          sidebarExpandido = true;
-          localStorage.setItem('sidebarCollapsed', 'false');
         }
       });
     });
     
-    console.log("🎉 Control simple configurado");
+    // Cerrar sidebar al hacer clic en cualquier enlace
+    if (sidebar) {
+      // Capturar TODOS los enlaces dentro del sidebar
+      sidebar.addEventListener('click', function(e) {
+        // Verificar si el click fue en un enlace <a> (no en botones de toggle)
+        const clickedLink = e.target.closest('a');
+        
+        if (clickedLink) {
+          // Es un enlace, cerrar sidebar en móvil
+          if (isMobile()) {
+            // Pequeño delay para que la navegación se procese primero
+            setTimeout(() => {
+              body.classList.add('sidebar-collapsed');
+            }, 150);
+          }
+        }
+      }, true); // useCapture = true para capturar antes que otros eventos
+    }
   });
-  
-  // CSS para eliminar TODOS los hovers y transiciones
-  const style = document.createElement('style');
-  style.textContent = `
-    .left-sidebar {
-      transition: none !important;
-      -webkit-transition: none !important;
-    }
-    .dash-container {
-      transition: none !important;
-      -webkit-transition: none !important;
-    }
-    
-    /* Eliminar COMPLETAMENTE hover del sidebar */
-    .left-sidebar:hover {
-      width: 78px !important;
-    }
-    
-    .sidebar-collapsed .left-sidebar:hover {
-      width: 78px !important;
-    }
-    
-    /* Forzar que siempre esté colapsado a menos que se expanda manualmente */
-    body.sidebar-collapsed .left-sidebar {
-      width: 78px !important;
-    }
-    
-    /* Eliminar cualquier clase hover */
-    .sidebar-hover .left-sidebar {
-      width: 78px !important;
-    }
-  `;
-  document.head.appendChild(style);
-  
   </script>
 
   <script>

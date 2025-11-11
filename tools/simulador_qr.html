@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Acceso - MiGym</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0a0e1a;
+            --panel-bg: #111827;
+            --border-color: #1f2937;
+            --cyan: #06b6d4;
+            --text-primary: #e5e7eb;
+            --text-secondary: #9ca3af;
+        }
+        
+        body {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+        
+        .simulator-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .simulator-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        
+        .brand-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .brand-circle {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--cyan), #0891b2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+        }
+        
+        .method-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .method-tab {
+            flex: 1;
+            padding: 1rem;
+            background: var(--bg-dark);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .method-tab:hover {
+            border-color: var(--cyan);
+        }
+        
+        .method-tab.active {
+            border-color: var(--cyan);
+            background: rgba(6, 182, 212, 0.1);
+        }
+        
+        .method-tab i {
+            font-size: 2rem;
+            color: var(--cyan);
+            margin-bottom: 0.5rem;
+        }
+        
+        .input-group-custom {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-control-custom {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.875rem 1rem;
+            border-radius: 10px;
+        }
+        
+        .form-control-custom:focus {
+            background: var(--bg-dark);
+            border-color: var(--cyan);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 0.2rem rgba(6, 182, 212, 0.25);
+        }
+        
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--cyan), #0891b2);
+            border: none;
+            color: white;
+            padding: 0.875rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+        }
+        
+        #qr-reader {
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        
+        .log-container {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 2rem;
+        }
+        
+        .log-entry {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            border-left: 4px solid;
+            font-size: 0.875rem;
+        }
+        
+        .log-entry.success {
+            background: rgba(16, 185, 129, 0.1);
+            border-left-color: #10b981;
+        }
+        
+        .log-entry.error {
+            background: rgba(239, 68, 68, 0.1);
+            border-left-color: #ef4444;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+        
+        .upload-zone {
+            background: var(--bg-dark);
+            border: 2px dashed var(--border-color);
+            border-radius: 15px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-zone:hover {
+            border-color: var(--cyan);
+            background: rgba(6, 182, 212, 0.05);
+        }
+        
+        .upload-zone.drag-over {
+            border-color: var(--cyan);
+            background: rgba(6, 182, 212, 0.1);
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body>
+    <div class="simulator-container">
+        <div class="simulator-card">
+            <div class="brand-header">
+                <div class="brand-circle">MiGym</div>
+                <h4 class="mb-0">Simulador de Acceso</h4>
+                <p class="text-muted mb-0" style="font-size: 0.9rem;">Sistema de registro RFID/QR</p>
+            </div>
+            
+            <!-- Selector de método -->
+            <div class="method-tabs">
+                <div class="method-tab active" data-method="manual">
+                    <i class="bi bi-keyboard"></i>
+                    <div style="font-size: 0.9rem; font-weight: 600;">Manual</div>
+                </div>
+                <div class="method-tab" data-method="qr">
+                    <i class="bi bi-qr-code-scan"></i>
+                    <div style="font-size: 0.9rem; font-weight: 600;">Escanear QR</div>
+                </div>
+            </div>
+            
+            <!-- Método Manual -->
+            <div id="method-manual" class="method-content">
+                <div class="input-group-custom">
+                    <label class="form-label" style="font-weight: 600; margin-bottom: 0.5rem;">
+                        <i class="bi bi-envelope me-2"></i>Email del Socio
+                    </label>
+                    <input type="email" 
+                           id="email-input" 
+                           class="form-control form-control-custom" 
+                           placeholder="socio@ejemplo.com"
+                           autocomplete="off">
+                </div>
+                <button class="btn btn-primary-custom" onclick="registrarAcceso()">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>
+                    Registrar Acceso
+                </button>
+            </div>
+            
+            <!-- Método QR -->
+            <div id="method-qr" class="method-content hidden">
+                <!-- Opción 1: Subir/Arrastrar archivo -->
+                <div class="upload-zone" id="upload-zone">
+                    <i class="bi bi-cloud-upload" style="font-size: 3rem; color: var(--cyan); margin-bottom: 1rem;"></i>
+                    <p class="mb-2" style="font-weight: 600;">Arrastra el QR aquí</p>
+                    <p class="text-muted mb-3" style="font-size: 0.875rem;">o haz click para seleccionar</p>
+                    <input type="file" 
+                           id="qr-file-input" 
+                           accept="image/*" 
+                           style="display: none;"
+                           onchange="handleFileSelect(event)">
+                    <button class="btn btn-outline-light btn-sm" onclick="document.getElementById('qr-file-input').click()">
+                        <i class="bi bi-folder2-open me-2"></i>Seleccionar Imagen
+                    </button>
+                </div>
+                
+                <!-- Opción 2: Escanear con cámara -->
+                <div class="text-center my-3">
+                    <button class="btn btn-outline-secondary" onclick="toggleCamera()" id="camera-toggle-btn">
+                        <i class="bi bi-camera me-2"></i>Usar Cámara
+                    </button>
+                </div>
+                
+                <div id="qr-reader" class="hidden" style="width: 100%;"></div>
+            </div>
+            
+            <!-- Log de eventos -->
+            <div class="log-container" id="log-container">
+                <div style="font-weight: 600; margin-bottom: 1rem; color: var(--text-secondary);">
+                    <i class="bi bi-clock-history me-2"></i>Registro de Accesos
+                </div>
+                <div id="log-entries"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let html5QrCode = null;
+        let currentMethod = 'manual';
+        let cameraActive = false;
+        
+        // API Configuration
+        const API_URL = 'http://localhost:8000/aplicaciones/ocupacion/api/access/';
+        const DEVICE_TOKEN = 'secret-token-123';
+        const DEVICE_ID = 'kiosk-sim-1';
+        
+        // Cambiar método
+        document.querySelectorAll('.method-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const method = this.dataset.method;
+                switchMethod(method);
+            });
+        });
+        
+        function switchMethod(method) {
+            // Actualizar tabs
+            document.querySelectorAll('.method-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[data-method="${method}"]`).classList.add('active');
+            
+            // Mostrar/ocultar contenido
+            document.getElementById('method-manual').classList.toggle('hidden', method !== 'manual');
+            document.getElementById('method-qr').classList.toggle('hidden', method !== 'qr');
+            
+            currentMethod = method;
+            
+            // Detener cámara si estaba activa
+            if (method !== 'qr') {
+                stopQrScanner();
+            }
+        }
+        
+        // Manejar selección de archivo
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                processImageFile(file);
+            }
+        }
+        
+        // Procesar imagen de QR
+        function processImageFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    // Crear canvas para procesar imagen
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // Obtener datos de imagen
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    
+                    // Usar html5-qrcode para decodificar
+                    Html5Qrcode.scanFile(file, true)
+                        .then(decodedText => {
+                            addLog(`✓ QR leído desde imagen: ${decodedText}`, 'success');
+                            processAccess(decodedText);
+                        })
+                        .catch(err => {
+                            addLog(`✗ No se pudo leer el QR de la imagen`, 'error');
+                            console.error(err);
+                        });
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Drag & Drop handlers
+        const uploadZone = document.getElementById('upload-zone');
+        
+        uploadZone.addEventListener('click', function() {
+            document.getElementById('qr-file-input').click();
+        });
+        
+        uploadZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+        
+        uploadZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+        });
+        
+        uploadZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                processImageFile(file);
+            } else {
+                addLog('Por favor arrastra una imagen válida', 'error');
+            }
+        });
+        
+        // Toggle cámara
+        function toggleCamera() {
+            if (cameraActive) {
+                stopQrScanner();
+            } else {
+                startQrScanner();
+            }
+        }
+        
+        // Registrar acceso manual
+        async function registrarAcceso() {
+            const email = document.getElementById('email-input').value.trim();
+            if (!email) {
+                addLog('Por favor ingresa un email', 'error');
+                return;
+            }
+            
+            await processAccess(email);
+            document.getElementById('email-input').value = '';
+        }
+        
+        // Procesar acceso con nombre del socio (para cámara)
+        async function processAccessWithName(email) {
+            try {
+                // Mostrar indicador de carga
+                showToast('⏳ Procesando...', 'info');
+                
+                const payload = {
+                    member_code: email,
+                    type: "IN",
+                    source: "QR",
+                    raw_uid: email,
+                    device_id: DEVICE_ID
+                };
+                
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Device-Token': DEVICE_TOKEN
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Obtener nombre del socio desde la respuesta
+                    const nombre = data.socio_nombre || email.split('@')[0];
+                    const tipoAcceso = data.message?.toLowerCase().includes('egreso') ? 'SALIDA' : 'INGRESO';
+                    
+                    if (tipoAcceso === 'INGRESO') {
+                        addLog(`✓ INGRESO EXITOSO - ${nombre}`, 'success');
+                        showToast(`✓ INGRESO EXITOSO\n¡Bienvenido ${nombre}!`, 'success');
+                    } else {
+                        addLog(`✓ SALIDA REGISTRADA - ${nombre}`, 'success');
+                        showToast(`✓ SALIDA REGISTRADA\n¡Hasta pronto ${nombre}!`, 'success');
+                    }
+                    
+                    // Sonido de éxito
+                    playSuccessSound();
+                } else {
+                    const error = data.error || 'No se pudo registrar el acceso';
+                    addLog(`✗ Error: ${error}`, 'error');
+                    showToast(`✗ ${error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`✗ Error de conexión: ${error.message}`, 'error');
+                showToast(`✗ Error de conexión al servidor`, 'error');
+            }
+        }
+        
+        // Procesar acceso (común para manual y drag&drop)
+        async function processAccess(email) {
+            try {
+                // Mostrar indicador de carga
+                showToast('⏳ Procesando...', 'info');
+                
+                const payload = {
+                    member_code: email,
+                    type: "IN",
+                    source: "QR",
+                    raw_uid: email,
+                    device_id: DEVICE_ID
+                };
+                
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Device-Token': DEVICE_TOKEN
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const mensaje = data.message || 'Acceso registrado exitosamente';
+                    const nombre = data.socio_nombre || email.split('@')[0];
+                    addLog(`✓ ${mensaje} - ${nombre}`, 'success');
+                    showToast(`✓ ${mensaje.toUpperCase()}`, 'success');
+                    
+                    // Sonido de éxito (opcional)
+                    playSuccessSound();
+                } else {
+                    const error = data.error || 'No se pudo registrar el acceso';
+                    addLog(`✗ Error: ${error} - ${email}`, 'error');
+                    showToast(`✗ ${error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`✗ Error de conexión: ${error.message}`, 'error');
+                showToast(`✗ Error de conexión al servidor`, 'error');
+            }
+        }
+        
+        // Mostrar toast/notificación grande
+        function showToast(message, type = 'success') {
+            // Remover toast anterior si existe
+            const existingToast = document.getElementById('custom-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            const toast = document.createElement('div');
+            toast.id = 'custom-toast';
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 10000;
+                padding: 2rem 2.5rem;
+                border-radius: 15px;
+                font-size: 1.3rem;
+                font-weight: 700;
+                color: white;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+                animation: slideInRight 0.3s ease-out;
+                min-width: 350px;
+                text-align: center;
+                white-space: pre-line;
+                line-height: 1.6;
+            `;
+            
+            if (type === 'success') {
+                toast.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            } else if (type === 'error') {
+                toast.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+            } else {
+                toast.style.background = 'linear-gradient(135deg, #06b6d4, #0891b2)';
+            }
+            
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            // Auto-remover después de 4 segundos
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+        
+        // Sonido de éxito
+        function playSuccessSound() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.2);
+        }
+        
+        // Scanner QR con cámara
+        function startQrScanner() {
+            if (html5QrCode) return;
+            
+            document.getElementById('qr-reader').classList.remove('hidden');
+            const btn = document.getElementById('camera-toggle-btn');
+            btn.innerHTML = '<i class="bi bi-camera-video-off me-2"></i>Detener Cámara';
+            
+            html5QrCode = new Html5Qrcode("qr-reader");
+            
+            html5QrCode.start(
+                { facingMode: "environment" },
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 }
+                },
+                async (decodedText) => {
+                    // QR detectado - detener scanner inmediatamente
+                    addLog(`✓ QR detectado: ${decodedText}`, 'success');
+                    
+                    // Detener el scanner
+                    await stopQrScanner();
+                    
+                    // Procesar el acceso
+                    await processAccessWithName(decodedText);
+                },
+                (errorMessage) => {
+                    // Errores de escaneo (normal, se puede ignorar)
+                }
+            ).then(() => {
+                cameraActive = true;
+            }).catch(err => {
+                addLog(`✗ Error al iniciar cámara: ${err}`, 'error');
+                document.getElementById('qr-reader').classList.add('hidden');
+                btn.innerHTML = '<i class="bi bi-camera me-2"></i>Usar Cámara';
+                cameraActive = false;
+            });
+        }
+        
+        function stopQrScanner() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode = null;
+                    cameraActive = false;
+                    document.getElementById('qr-reader').classList.add('hidden');
+                    const btn = document.getElementById('camera-toggle-btn');
+                    if (btn) {
+                        btn.innerHTML = '<i class="bi bi-camera me-2"></i>Usar Cámara';
+                    }
+                }).catch(err => {
+                    console.error('Error al detener scanner:', err);
+                });
+            }
+        }
+        
+        // Log de eventos
+        function addLog(message, type = 'success') {
+            const logEntries = document.getElementById('log-entries');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `<strong>${timestamp}</strong> - ${message}`;
+            
+            logEntries.insertBefore(entry, logEntries.firstChild);
+            
+            // Mantener solo últimos 10 logs
+            while (logEntries.children.length > 10) {
+                logEntries.removeChild(logEntries.lastChild);
+            }
+        }
+        
+        // Enter en input manual
+        document.getElementById('email-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                registrarAcceso();
+            }
+        });
+        
+        // Log inicial
+        addLog('Simulador iniciado - Listo para registrar accesos', 'success');
+    </script>
+</body>
+</html>

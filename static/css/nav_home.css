@@ -95,6 +95,11 @@ nav.nav .nav-links li button:hover {
   .menu-toggle {
     display: flex;
   }
+  
+  /* Ocultar botón del navbar en páginas con sidebar (dashboard) */
+  body.has-sidebar .menu-toggle {
+    display: none !important;
+  }
 }
 
 nav.nav .nav-links a.active {

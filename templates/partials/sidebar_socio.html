@@ -1,41 +1,43 @@
 {% with request.resolver_match.url_name as current %}
-<aside class="left-sidebar neon" aria-label="Panel de navegación socio">
+<aside class="left-sidebar" aria-label="Panel de navegación socio">
   <div class="ls-brand">
-    <div class="brand-circle" id="sidebar-toggle">
-      MiGym
+    <div class="brand-circle">
+      MG
     </div>
   </div>
 
   <nav class="ls-nav">
     <a href="{% url 'socios:panel_socio' %}" class="ls-item {% if current == 'panel_socio' %}active{% endif %}">
-      <svg viewBox="0 0 24 24" class="ico"><path d="M3 13h8V3H3v10zm10 8h8V3h-8v18zM3 21h8v-6H3v6z" fill="currentColor"/></svg>
+      <i class="bi bi-grid-3x3-gap-fill ico"></i>
       <span>Mi Panel</span>
     </a>
 
     <a href="{% url 'socios:mi_cuota' %}" class="ls-item {% if current == 'mi_cuota' %}active{% endif %}">
-      <svg viewBox="0 0 24 24" class="ico"><path d="M21 7H3c-1.1 0-2 .9-2 2v6a2 2 0 002 2h18a2 2 0 002-2V9a2 2 0 00-2-2zm0 8H3v-4h18v4zm-4-3h-4v2h4v-2z" fill="currentColor"/></svg>
+      <i class="bi bi-credit-card-fill ico"></i>
       <span>Mi Cuota</span>
     </a>
 
     <a href="{% url 'socios:mi_rutina' %}" class="ls-item {% if current == 'mi_rutina' %}active{% endif %}">
-      <svg viewBox="0 0 24 24" class="ico"><path d="M20.57 14.86l-1.41 1.41-3.43-3.43-3.43 3.43-1.41-1.41L13.74 12 9.89 8.14l1.41-1.41L15.6 10.6l3.43-3.43 1.41 1.41L17.43 12l3.14 2.86z" fill="currentColor"/></svg>
+      <i class="bi bi-clipboard-check-fill ico"></i>
       <span>Mi Rutina</span>
     </a>
 
     <a href="{% url 'socios:ocupacion_gimnasio' %}" class="ls-item {% if current == 'ocupacion_gimnasio' %}active{% endif %}">
-      <svg viewBox="0 0 24 24" class="ico"><path d="M3 3v18h18V3H3zm16 16H5V5h14v14zM7 13h2v4H7v-4zm4-6h2v10h-2V7zm4 3h2v7h-2v-7z" fill="currentColor"/></svg>
+      <i class="bi bi-bar-chart-fill ico"></i>
       <span>Ocupación</span>
     </a>
 
     <a href="{% url 'socios:mi_qr' %}" class="ls-item {% if current == 'mi_qr' %}active{% endif %}">
-      <svg viewBox="0 0 24 24" class="ico"><path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM13 13h2v2h-2v-2zm2 2h2v2h-2v-2zm2-2h2v2h-2v-2zm0 4h2v2h-2v-2zm-4 0h2v2h-2v-2zm6 0h2v2h-2v-2zm-2 2h2v2h-2v-2z" fill="currentColor"/></svg>
+      <i class="bi bi-qr-code ico"></i>
       <span>Mi QR</span>
     </a>
 
+    <hr class="my-3" style="border-color: rgba(255,255,255,0.1);">
+
     <form method="post" action="{% url 'logout' %}">
       {% csrf_token %}
-      <button type="submit" class="ls-item danger">
-        <svg viewBox="0 0 24 24" class="ico"><path d="M10 17l1.41-1.41L8.83 13H20v-2H8.83l2.58-2.59L10 7l-5 5 5 5zM4 19h6v2H4a2 2 0 01-2-2V5a2 2 0 012-2h6v2H4v14z" fill="currentColor"/></svg>
+      <button type="submit" class="ls-item danger border-0 w-100 text-start" style="background: transparent;">
+        <i class="bi bi-box-arrow-right ico"></i>
         <span>Salir</span>
       </button>
     </form>

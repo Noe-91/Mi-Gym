@@ -24,31 +24,35 @@ window.__django_messages = [
 {% block page_content %}
 <div class="container-fluid py-3">
 
-  <section class="d-flex justify-content-between align-items-center mb-3">
+  <!-- Header con título y acciones -->
+  <div class="d-flex justify-content-between align-items-start mb-4">
     <div>
-      <h1 class="h3 mb-1">Socio: {{ socio.user.get_full_name|default:socio.user.username }}</h1>
+      <h1 class="h3 mb-2">Socio: {{ socio.user.get_full_name|default:socio.user.username }}</h1>
       <p class="text-body-secondary m-0">Detalle general y suscripciones.</p>
     </div>
 
-    <!-- ===== Acciones (con confirmaciones) ===== -->
-    <div class="d-flex gap-2 align-items-center">
-      <a href="{% url 'socios:editar' socio.pk %}" class="btn btn-outline-primary">
-        Editar
-      </a>
-
-      <!-- Botón rápido: abre modal para elegir Plan y Monto y crear suscripción (redirige a pagos) -->
+    <!-- Botones de acción principales -->
+    <div class="d-flex gap-2 flex-wrap justify-content-end">
+      <!-- Registrar pago -->
       {% if has_active %}
-        <button type="button" class="btn btn-primary" disabled title="El socio ya tiene una suscripción vigente">
-          Registrar pago
+        <button type="button" class="btn-migym-primary" disabled title="El socio ya tiene una suscripción vigente">
+          <i class="bi bi-cash-coin"></i>
+          REGISTRAR PAGO
         </button>
-        <small class="text-warning ms-2">El socio tiene una suscripción vigente.</small>
       {% else %}
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalRegistrarPago">
-          Registrar pago
+        <button type="button" class="btn-migym-primary" data-bs-toggle="modal" data-bs-target="#modalRegistrarPago">
+          <i class="bi bi-cash-coin"></i>
+          REGISTRAR PAGO
         </button>
       {% endif %}
 
-      <!-- ELIMINAR socio (POST + confirmación). Ajustá el url name si difiere. -->
+      <!-- Editar -->
+      <a href="{% url 'socios:editar' socio.pk %}" class="btn-migym-editar">
+        <i class="bi bi-pencil"></i>
+        Editar
+      </a>
+
+      <!-- Eliminar -->
       <form method="post"
             action="{% url 'socios:eliminar' socio.pk %}"
             class="d-inline"
@@ -56,53 +60,135 @@ window.__django_messages = [
             data-confirm-ok="Eliminar"
             data-confirm-cancel="Cancelar">
         {% csrf_token %}
-        <button type="submit" class="btn btn-outline-danger">Eliminar</button>
+        <button type="submit" class="btn-migym-eliminar">
+          <i class="bi bi-trash"></i>
+          Eliminar
+        </button>
       </form>
 
-      <a href="{% url 'socios:lista' %}" class="btn btn-link">Volver</a>
+      <!-- Volver -->
+      <a href="{% url 'socios:lista' %}" class="btn-migym-secondary">
+        <i class="bi bi-arrow-left"></i>
+        Volver
+      </a>
     </div>
-  </section>
+  </div>
 
-  <div class="row g-3">
+  <!-- Alerta si tiene suscripción vigente -->
+  {% if has_active %}
+  <div class="alert-migym info mb-3">
+    <i class="bi bi-info-circle me-2"></i>
+    El socio tiene una suscripción vigente.
+  </div>
+  {% endif %}
+
+  <!-- Contenido principal en dos columnas -->
+  <div class="row g-4">
+    <!-- Columna izquierda: Datos del socio -->
     <div class="col-lg-6">
-      <div class="card shadow-sm h-100">
-        <div class="card-header">
-          <h2 class="h5 mb-0">Datos del socio</h2>
-        </div>
+      <div class="card h-100">
         <div class="card-body">
-          <dl class="row mb-0">
-            <dt class="col-5 col-sm-4">Usuario</dt><dd class="col-7 col-sm-8">{{ socio.user.username }}</dd>
-            <dt class="col-5 col-sm-4">Nombre</dt><dd class="col-7 col-sm-8">{{ socio.user.first_name }}</dd>
-            <dt class="col-5 col-sm-4">Apellido</dt><dd class="col-7 col-sm-8">{{ socio.user.last_name }}</dd>
-            <dt class="col-5 col-sm-4">Email</dt><dd class="col-7 col-sm-8">{{ socio.user.email }}</dd>
-            <dt class="col-5 col-sm-4">Sucursal</dt><dd class="col-7 col-sm-8">{{ socio.sucursal }}</dd>
-            <dt class="col-5 col-sm-4">Estado</dt>
-            <dd class="col-7 col-sm-8"><span class="badge bg-primary">{{ socio.estado }}</span></dd>
-            <dt class="col-5 col-sm-4">Fecha de alta</dt><dd class="col-7 col-sm-8">{{ socio.fecha_alta }}</dd>
-          </dl>
+          <h2 class="h5 mb-4 pb-3" style="border-bottom: 1px solid var(--migym-border);">
+            <i class="bi bi-person-circle me-2" style="color: var(--migym-cyan);"></i>
+            Datos del socio
+          </h2>
+          
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom: 1px solid #222;">
+                <span class="text-body-secondary">Usuario</span>
+                <span class="fw-semibold">{{ socio.user.username }}</span>
+              </div>
+            </div>
+            
+            <div class="col-12">
+              <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom: 1px solid #222;">
+                <span class="text-body-secondary">Nombre</span>
+                <span class="fw-semibold">{{ socio.user.first_name }}</span>
+              </div>
+            </div>
+            
+            <div class="col-12">
+              <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom: 1px solid #222;">
+                <span class="text-body-secondary">Apellido</span>
+                <span class="fw-semibold">{{ socio.user.last_name }}</span>
+              </div>
+            </div>
+            
+            <div class="col-12">
+              <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom: 1px solid #222;">
+                <span class="text-body-secondary">Email</span>
+                <span class="fw-semibold">{{ socio.user.email }}</span>
+              </div>
+            </div>
+            
+            <div class="col-12">
+              <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom: 1px solid #222;">
+                <span class="text-body-secondary">Sucursal</span>
+                <span class="fw-semibold">{{ socio.sucursal }}</span>
+              </div>
+            </div>
+            
+            <div class="col-12">
+              <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom: 1px solid #222;">
+                <span class="text-body-secondary">Estado</span>
+                <span class="badge-migym success">{{ socio.estado }}</span>
+              </div>
+            </div>
+            
+            <div class="col-12">
+              <div class="d-flex justify-content-between align-items-center py-2">
+                <span class="text-body-secondary">Fecha de alta</span>
+                <span class="fw-semibold">{{ socio.fecha_alta }}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
+    <!-- Columna derecha: Suscripciones -->
     <div class="col-lg-6">
-      <div class="card shadow-sm h-100">
-        <div class="card-header">
-          <h2 class="h5 mb-0">Suscripciones</h2>
-        </div>
-        <div class="list-group list-group-flush">
-          {% for s in suscripciones %}
-            <div class="list-group-item bg-transparent">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <div class="fw-semibold">{{ s.plan.nombre }}</div>
-                      <div class="text-body-secondary small">{{ s.fecha_inicio }} → {{ s.fecha_fin }} · ${{ s.plan.precio|floatformat:2 }}</div>
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="h5 mb-4 pb-3" style="border-bottom: 1px solid var(--migym-border);">
+            <i class="bi bi-calendar-check me-2" style="color: var(--migym-orange);"></i>
+            Suscripciones
+          </h2>
+          
+          {% if suscripciones %}
+            <div class="d-flex flex-column gap-3">
+              {% for s in suscripciones %}
+                <div class="p-3" style="border: 1px solid var(--migym-border); border-radius: 8px;">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                      <div class="fw-semibold mb-1" style="color: var(--migym-cyan);">{{ s.plan.nombre }}</div>
+                      <div class="text-body-secondary small">
+                        <i class="bi bi-calendar-range me-1"></i>
+                        {{ s.fecha_inicio }} → {{ s.fecha_fin }}
+                      </div>
+                      <div class="text-body-secondary small mt-1">
+                        <i class="bi bi-cash me-1"></i>
+                        ${{ s.plan.precio|floatformat:2 }}
+                      </div>
+                    </div>
+                    {% if s.estado == "Vigente" %}
+                      <span class="badge-migym success">{{ s.estado }}</span>
+                    {% elif s.estado == "Vencida" %}
+                      <span class="badge-migym danger">{{ s.estado }}</span>
+                    {% else %}
+                      <span class="badge-migym info">{{ s.estado }}</span>
+                    {% endif %}
+                  </div>
                 </div>
-                <span class="badge bg-secondary">{{ s.estado }}</span>
-              </div>
+              {% endfor %}
             </div>
-          {% empty %}
-            <div class="list-group-item text-body-secondary">No tiene suscripciones.</div>
-          {% endfor %}
+          {% else %}
+            <div class="text-center py-5 text-body-secondary">
+              <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
+              <p class="mt-3 mb-0">No tiene suscripciones registradas.</p>
+            </div>
+          {% endif %}
         </div>
       </div>
     </div>

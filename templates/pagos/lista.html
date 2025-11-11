@@ -59,13 +59,13 @@
               <td class="text-end">${{ p.monto }}</td>
               <td>
                 {% if p.metodo %}
-                  <span class="badge text-bg-secondary">{{ p.metodo }}</span>
+                  <span class="badge-migym info">{{ p.metodo }}</span>
                 {% else %}
                   <span class="text-body-secondary">—</span>
                 {% endif %}
               </td>
               <td class="text-center">
-                <a href="{% url 'pagos:detalle' pk=p.id %}" class="btn btn-sm btn-outline-primary" title="Ver detalle">
+                <a href="{% url 'pagos:detalle' pk=p.id %}" class="btn-migym-ver" title="Ver detalle">
                   <i class="bi bi-eye"></i> Ver
                 </a>
               </td>
@@ -83,7 +83,9 @@
     </div>
 
     <div class="card-footer d-flex justify-content-end">
-      <a href="{% url 'pagos:pagos_crear' %}" class="btn btn-primary">+ Nuevo Pago</a>
+      <a href="{% url 'pagos:pagos_crear' %}" class="btn-migym-primary">
+        <i class="bi bi-plus-circle"></i> Nuevo Pago
+      </a>
     </div>
   </div>
 

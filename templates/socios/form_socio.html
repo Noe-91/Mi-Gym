@@ -9,75 +9,70 @@
 {% endblock %}
 
 {% block page_content %}
-<div class="container-fluid py-3">
+<div class="form-migym-container">
 
-  <section class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-      <h1 class="h3 mb-1">Socios / Editar</h1>
-      <p class="text-body-secondary m-0">Actualizá los datos del socio.</p>
-    </div>
-    <div>
-      <a href="{% url 'socios:detalle' form.instance.pk %}" class="btn btn-link">Volver al detalle</a>
-    </div>
-  </section>
-
-  <div class="card shadow-sm">
-    <div class="card-header">
-      <h2 class="h5 mb-0">Datos del socio</h2>
+  <div class="form-migym-card">
+    <div class="form-migym-header">
+      <h1>Editar Socio</h1>
+      <p>Actualizá los datos del socio</p>
     </div>
 
-    <div class="card-body">
-      {% if form.non_field_errors %}
-        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-      {% endif %}
+    {% if form.non_field_errors %}
+      <div class="alert-migym">{{ form.non_field_errors }}</div>
+    {% endif %}
 
-      <form id="form-edit-socio" method="post" action="" class="row g-3 needs-validation" novalidate>
-        {% csrf_token %}
+    <form id="form-edit-socio" method="post" action="" novalidate>
+      {% csrf_token %}
 
-        <div class="col-md-6">
-          <label for="id_first_name" class="form-label">Nombre</label>
+      <div class="form-row-migym-2col">
+        <div class="form-group-migym">
+          <label for="id_first_name" class="form-label-migym">Nombre</label>
           {{ form.first_name|default:form.nombre }}
-          <div class="invalid-feedback">Ingresá el nombre.</div>
         </div>
 
-        <div class="col-md-6">
-          <label for="id_last_name" class="form-label">Apellido</label>
+        <div class="form-group-migym">
+          <label for="id_last_name" class="form-label-migym">Apellido</label>
           {{ form.last_name|default:form.apellido }}
-          <div class="invalid-feedback">Ingresá el apellido.</div>
         </div>
+      </div>
 
-        <div class="col-md-6">
-          <label for="id_email" class="form-label">Email</label>
+      <div class="form-row-migym-2col">
+        <div class="form-group-migym">
+          <label for="id_email" class="form-label-migym">Email</label>
           {{ form.email }}
-          <div class="invalid-feedback">Ingresá un email válido.</div>
         </div>
 
-        <div class="col-md-6">
-          <label for="id_dni" class="form-label">DNI</label>
+        <div class="form-group-migym">
+          <label for="id_dni" class="form-label-migym">DNI</label>
           {{ form.dni }}
-          <div class="invalid-feedback">Ingresá el DNI.</div>
         </div>
+      </div>
 
+      <div class="form-row-migym-2col">
         {% if form.sucursal %}
-        <div class="col-md-6">
-          <label for="id_sucursal" class="form-label">Sucursal</label>
+        <div class="form-group-migym">
+          <label for="id_sucursal" class="form-label-migym">Sucursal</label>
           {{ form.sucursal }}
         </div>
         {% endif %}
 
         {% if form.estado %}
-        <div class="col-md-6">
-          <label for="id_estado" class="form-label">Estado</label>
+        <div class="form-group-migym">
+          <label for="id_estado" class="form-label-migym">Estado</label>
           {{ form.estado }}
         </div>
         {% endif %}
+      </div>
 
-        <div class="col-12 d-flex justify-content-end gap-2 mt-2">
-          <a href="{% url 'socios:detalle' form.instance.pk %}" class="btn btn-outline-primary">Cancelar</a>
-          <button type="submit" class="btn btn-primary">Guardar</button>
-        </div>
-      </form>
-    </div>
+      <div class="d-flex justify-content-end gap-3 mt-4">
+        <a href="{% url 'socios:detalle' form.instance.pk %}" class="btn-migym-secondary">
+          <i class="bi bi-x-circle"></i> Cancelar
+        </a>
+        <button type="submit" class="btn-migym-primary">
+          <i class="bi bi-check-circle"></i> Guardar Cambios
+        </button>
+      </div>
+    </form>
   </div>
 
 </div>

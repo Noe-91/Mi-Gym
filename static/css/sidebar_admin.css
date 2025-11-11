@@ -6,12 +6,13 @@
   position: fixed !important;
   top: 64px !important;
   left: 0 !important;
-  height: calc(100vh - 64px) !important;
-  width: 300px !important;
+  bottom: 45px !important; /* Espacio para footer */
+  height: auto !important;
+  width: 200px !important;
   background: #000000 !important;
   border-right: 2px solid var(--orange) !important;
   box-shadow: 20px 0 40px rgba(0,0,0,.45) !important;
-  z-index: 999999 !important;
+  z-index: 900 !important;
   transition: width .25s ease !important;
   overflow-x: hidden !important;
   overflow-y: auto !important;
@@ -19,13 +20,13 @@
 
 /* Encabezado / controles */
 .ls-brand{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:.9rem 1rem; border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex; align-items:center; justify-content:center;
+  padding:.6rem 0.5rem; border-bottom:1px solid rgba(255,255,255,.06);
 }
 .brand-circle {
-  width: 50px;
-  height: 50px;
-  font-size: 0.9rem;
+  width: 40px;
+  height: 40px;
+  font-size: 0.8rem;
   border-radius: 10%;
   display: grid;
   place-items: center;
@@ -46,11 +47,11 @@
 .ls-ctrl:hover{ color: var(--accent); border-color: var(--accent); }
 
 /* Navegación */
-.ls-nav{ padding:.6rem; display:flex; flex-direction:column; gap:.25rem; }
+.ls-nav{ padding:.4rem; display:flex; flex-direction:column; gap:.2rem; }
 .ls-item {
   display: flex;
   align-items: center;
-  gap: .75rem;
+  gap: .5rem;
 
   width: 100%;
   box-sizing: border-box;
@@ -60,18 +61,19 @@
   background: transparent;
   border: none; /* Sin bordes */
   border-radius: 0; /* Sin redondeo */
-  padding: .6rem .7rem;
-  margin: 0 .4rem;
+  padding: .5rem .4rem;
+  margin: 0 .3rem;
   
   font-weight: 500;
+  font-size: 0.85rem;
   transition: color .2s; /* Solo transición de color */
 }
 
 /* Íconos */
 .ls-item .ico {
-  width: 20px;
-  height: 20px;
-  flex: 0 0 20px;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
 }
 
 /* Hover */
@@ -92,31 +94,31 @@
 .ls-item.danger:hover{ background: rgba(255,106,0,.12); color: var(--orange); border-color: var(--orange); }
 
 /* Submenú */
-.ls-group .caret{ margin-left:auto; opacity:.8; }
+.ls-group .caret{ margin-left:auto; opacity:.8; font-size: 0.7rem; }
 .ls-sub{ 
   display:none; 
-  padding-left: 2.5rem; /* Más padding para distinguir subítems */
-  padding-right: 1rem; /* Padding derecho para no tocar el borde */
+  padding-left: 2rem;
+  padding-right: 0.5rem;
 }
 .ls-sub .ls-subitem{ 
   display:block; 
   color:#cbd5e1; 
   text-decoration:none; 
-  padding:.45rem 0;
-  font-size: 0.9rem; /* Texto un poco más pequeño */
+  padding:.35rem 0;
+  font-size: 0.8rem;
 }
 .ls-group.open .ls-sub{ display:block; }
 .ls-sub .ls-subitem:hover{ 
   color: var(--accent); 
-  padding-left: 0.3rem; /* Pequeña indentación en hover */
+  padding-left: 0.3rem;
   transition: padding-left 0.2s ease;
 }
 
 /* ====== Estado colapsado ====== */
 body.sidebar-collapsed .left-sidebar{ 
-  width: 78px !important; 
-  max-width: 78px !important;
-  min-width: 78px !important;
+  width: 60px !important; 
+  max-width: 60px !important;
+  min-width: 60px !important;
 }
 body.sidebar-collapsed .ls-item span{ display:none; }
 body.sidebar-collapsed .ls-group .caret{ display:none; }
@@ -125,23 +127,29 @@ body.sidebar-collapsed .ls-item{ justify-content:center; padding: .6rem; }
 
 /* Estado expandido solo cuando NO tiene clase collapsed */
 body:not(.sidebar-collapsed) .left-sidebar {
-  width: 300px !important;
-  max-width: 300px !important;
-  min-width: 300px !important;
+  width: 200px !important;
+  max-width: 200px !important;
+  min-width: 200px !important;
 }
 
 /* ====== Empuje de contenido ====== */
-body .dash-container{ 
-  padding-left: 300px !important;
-  transition: padding-left .25s ease !important;
-  min-height: 100vh !important;
+.dash-container,
+.dash-container.container-fluid { 
+  margin-left: 200px !important;
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+  transition: margin-left .25s ease !important;
+  min-height: calc(100vh - 64px) !important;
   box-sizing: border-box !important;
   position: relative !important;
   z-index: 1 !important;
+  width: auto !important;
+  max-width: none !important;
 }
 
-body.sidebar-collapsed .dash-container{ 
-  padding-left: 78px !important;
+body.sidebar-collapsed .dash-container,
+body.sidebar-collapsed .dash-container.container-fluid { 
+  margin-left: 60px !important;
 }
 
 /* Overlay para móviles */
@@ -152,10 +160,11 @@ body.sidebar-collapsed .dash-container{
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  z-index: 940 !important;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 1040 !important;
   opacity: 0;
   transition: opacity 0.3s ease;
+  pointer-events: none;
 }
 
 /* Mostrar overlay cuando sidebar está expandido en móviles */
@@ -163,6 +172,7 @@ body.sidebar-collapsed .dash-container{
   body:not(.sidebar-collapsed) .sidebar-overlay {
     display: block;
     opacity: 1;
+    pointer-events: auto;
   }
 }
 
@@ -172,18 +182,18 @@ body.sidebar-collapsed .dash-container{
     width: 280px !important;
     max-width: 280px !important;
     min-width: 280px !important;
-    transition: transform 0.3s ease;
-    z-index: 999999 !important;
+    transition: transform 0.3s ease !important;
+    z-index: 1050 !important;
   }
   
-  /* Por defecto visible en móvil (sin clase) */
-  body:not(.sidebar-collapsed) .left-sidebar {
-    transform: translateX(0);
-  }
-  
-  /* Colapsado = oculto en móvil */
+  /* Por defecto oculto en móvil */
   body.sidebar-collapsed .left-sidebar { 
-    transform: translateX(-100%);
+    transform: translateX(-100%) !important;
+  }
+  
+  /* Visible cuando está expandido */
+  body:not(.sidebar-collapsed) .left-sidebar {
+    transform: translateX(0) !important;
   }
   
   /* Brand circle en móvil dentro del sidebar */
@@ -193,13 +203,18 @@ body.sidebar-collapsed .dash-container{
     font-size: 1.2rem !important;
   }
   
-  /* En móvil el contenido NO se mueve */
+  /* En móvil el contenido NO se mueve - ocupa todo el ancho */
   .dash-container,
+  .dash-container.container-fluid,
   body .dash-container,
   body.sidebar-collapsed .dash-container,
-  body:not(.sidebar-collapsed) .dash-container { 
-    padding-left: 0 !important; 
+  body.sidebar-collapsed .dash-container.container-fluid,
+  body:not(.sidebar-collapsed) .dash-container,
+  body:not(.sidebar-collapsed) .dash-container.container-fluid { 
+    padding-left: 1rem !important;
+    padding-right: 1rem !important; 
     margin-left: 0 !important;
+    width: 100% !important;
   }
 }
 

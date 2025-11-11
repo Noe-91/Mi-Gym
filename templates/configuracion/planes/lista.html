@@ -45,33 +45,39 @@
             <td>${{ plan.precio }}</td>
             <td>
               {% if plan.requiere_certificado %}
-                <span class="badge bg-warning">Requerido</span>
+                <span class="badge-migym warning">Requerido</span>
               {% else %}
-                <span class="badge bg-secondary">No</span>
+                <span class="badge-migym info">No</span>
               {% endif %}
             </td>
             <td>
               {% if plan.activo %}
-                <span class="badge bg-success">Activo</span>
+                <span class="badge-migym success">Activo</span>
               {% else %}
-                <span class="badge bg-danger">Inactivo</span>
+                <span class="badge-migym danger">Inactivo</span>
               {% endif %}
             </td>
-            <td class="text-end d-flex justify-content-end gap-2">
-              <a class="btn btn-sm btn-primary"
-                 href="{% url 'configuracion:plan_editar' plan.pk %}"
-                 data-confirm="¿Editar plan {{ plan.nombre }}?"
-                 data-confirm-ok="Editar"
-                 data-confirm-cancel="Cancelar">Editar</a>
-              <form method="post"
-                    action="{% url 'configuracion:plan_eliminar' plan.pk %}"
-                    class="d-inline"
-                    data-confirm="¿Eliminar el plan {{ plan.nombre }}? Esta acción no se puede deshacer."
-                    data-confirm-ok="Eliminar"
-                    data-confirm-cancel="Cancelar">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
-              </form>
+            <td class="text-end">
+              <div class="btn-group-migym" style="justify-content: flex-end;">
+                <a class="btn-migym-editar"
+                   href="{% url 'configuracion:plan_editar' plan.pk %}"
+                   data-confirm="¿Editar plan {{ plan.nombre }}?"
+                   data-confirm-ok="Editar"
+                   data-confirm-cancel="Cancelar">
+                  <i class="bi bi-pencil"></i> Editar
+                </a>
+                <form method="post"
+                      action="{% url 'configuracion:plan_eliminar' plan.pk %}"
+                      class="d-inline"
+                      data-confirm="¿Eliminar el plan {{ plan.nombre }}? Esta acción no se puede deshacer."
+                      data-confirm-ok="Eliminar"
+                      data-confirm-cancel="Cancelar">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-migym-eliminar">
+                    <i class="bi bi-trash"></i> Eliminar
+                  </button>
+                </form>
+              </div>
             </td>
           </tr>
           {% empty %}

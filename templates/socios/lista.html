@@ -7,50 +7,17 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="{% static 'css/migym-theme.css' %}">
   <style>
-    /* Eliminar scroll horizontal COMPLETAMENTE */
-    body, html {
-      overflow-x: hidden !important;
-      width: 100% !important;
-      max-width: 100% !important;
-    }
-    
-    .dash-container {
-      overflow-x: hidden !important;
-      width: 100% !important;
-      max-width: 100% !important;
-      box-sizing: border-box !important;
-    }
-    
-    .container-fluid {
-      overflow-x: hidden !important;
-      width: 100% !important;
-      max-width: 100% !important;
-      padding-left: 1rem !important;
-      padding-right: 1rem !important;
-      box-sizing: border-box !important;
-    }
-    
-    .card {
-      overflow-x: hidden !important;
-      width: 100% !important;
-      max-width: 100% !important;
-      box-sizing: border-box !important;
-    }
-    
-    /* Subir el título */
-    .container-fluid.py-3 {
-      padding-top: 1rem !important;
-    }
-    
-    /* Asegurar que la tabla no genere scroll */
+    /* Estilos para tabla */
     .table {
       table-layout: auto;
       width: 100%;
+      min-width: 800px; /* Ancho mínimo para que no se comprima */
     }
     
     .table td, .table th {
-      padding: 0.75rem;
+      padding: 0.5rem 0.75rem;
       vertical-align: middle;
+      white-space: nowrap;
     }
     
     /* Columna de acciones sin límites */
@@ -77,58 +44,110 @@
     
     .card-footer {
       overflow: visible !important;
-      max-width: 100% !important;
+    }
+
+    /* Scrollbar personalizada */
+    .container-fluid > div:last-child::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .container-fluid > div:last-child::-webkit-scrollbar-track {
+      background: #000;
+    }
+    
+    .container-fluid > div:last-child::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 4px;
+    }
+    
+    .container-fluid > div:last-child::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+    
+    /* Responsive móvil */
+    @media (max-width: 768px) {
+      .container-fluid {
+        margin-left: 0 !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+      }
+      
+      /* Header más compacto en móvil */
+      .container-fluid > div:first-child {
+        padding: 0.5rem 0.5rem 0.25rem 0.5rem !important;
+      }
+      
+      /* Tabla scrollable horizontal */
+      .card {
+        overflow-x: auto !important;
+      }
+      
+      /* Formulario en columna en móvil */
+      .form-control-sm,
+      .form-select-sm {
+        width: 100% !important;
+        max-width: none !important;
+      }
     }
   </style>
 {% endblock %}
 
 {% block page_content %}
-<div class="container-fluid py-3">
+<div class="container-fluid" style="min-height: calc(100vh - 109px); display: flex; flex-direction: column; padding: 0;">
 
-  <section class="d-flex justify-content-between align-items-center mb-2">
-    <div>
-      <h1 class="h3 mb-1">Socios</h1>
-      <p class="text-body-secondary m-0">Listado y búsqueda por apellido.</p>
-    </div>
-    <div>
-      <!-- Confirmación al iniciar alta de un nuevo socio -->
+  <!-- Header fijo (área roja) - SIN PADDING -->
+  <div style="flex-shrink: 0; padding: 0.5rem 1rem 0.25rem 1rem;">
+    <!-- Título y botón en una sola línea -->
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h1 class="h5 mb-0">Socios</h1>
       <a href="{% url 'socios:socios_crear' %}"
-         class="btn btn-primary"
+         class="btn-migym-primary"
          data-confirm="¿Crear un nuevo socio?"
          data-confirm-ok="Sí, crear"
-         data-confirm-cancel="Cancelar">+ Nuevo socio</a>
-    </div>
-  </section>
-
-  <section class="card shadow-sm">
-    <div class="card-body">
-      <form method="get" action="" class="row g-3 align-items-end">
-        <div class="col-12 col-md-4 col-lg-3">
-          <label for="f-ape" class="form-label mb-1">Apellido</label>
-          <input id="f-ape" name="apellido" type="text"
-                 value="{{ request.GET.apellido }}"
-                 placeholder="Buscar por apellido…"
-                 class="form-control">
-        </div>
-        <div class="col-12 col-md-3 col-lg-2">
-          <label for="f-estado" class="form-label mb-1">Estado</label>
-          <select id="f-estado" name="estado_activo" class="form-select">
-            <option value="">Todos</option>
-            <option value="activos" {% if estado_filtro == 'activos' %}selected{% endif %}>Activos</option>
-            <option value="inactivos" {% if estado_filtro == 'inactivos' %}selected{% endif %}>Inactivos</option>
-          </select>
-        </div>
-        <div class="col-12 col-md-auto">
-          <button type="submit" class="btn btn-outline-primary">Buscar</button>
-        {% if request.GET.apellido or estado_filtro %}
-          <a href="{% url 'socios:lista' %}" class="btn btn-link">Limpiar</a>
-        {% endif %}
-        </div>
-      </form>
+         data-confirm-cancel="Cancelar">
+        <i class="bi bi-plus-circle"></i>
+        NUEVO SOCIO
+      </a>
     </div>
 
-    <div style="overflow: visible;">
-      <table class="table table-hover align-middle mb-0">
+    <!-- Formulario de búsqueda compacto -->
+    <div class="card mb-2">
+      <div class="card-body">
+        <form method="get" action="" class="row g-2 align-items-center m-0">
+          <div class="col-auto ps-0">
+            <input id="f-ape" name="apellido" type="text"
+                   value="{{ request.GET.apellido }}"
+                   placeholder="Buscar apellido…"
+                   class="form-control form-control-sm"
+                   style="width: 200px;">
+          </div>
+          <div class="col-auto">
+            <select id="f-estado" name="estado_activo" class="form-select form-select-sm" style="width: 120px;">
+              <option value="">Todos</option>
+              <option value="activos" {% if estado_filtro == 'activos' %}selected{% endif %}>Activos</option>
+              <option value="inactivos" {% if estado_filtro == 'inactivos' %}selected{% endif %}>Inactivos</option>
+            </select>
+          </div>
+          <div class="col-auto">
+            <button type="submit" class="btn-migym-primary">
+              <i class="bi bi-search"></i> Buscar
+            </button>
+          {% if request.GET.apellido or estado_filtro %}
+            <a href="{% url 'socios:lista' %}" class="btn-migym-secondary">
+              <i class="bi bi-x-circle"></i> Limpiar
+            </a>
+          {% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenedor de tabla con scroll (área azul) -->
+  <div style="padding: 0 1rem 0.5rem 1rem;">
+    <div class="card">
+      <div style="max-height: 500px; overflow-y: auto; overflow-x: auto;">
+        <table class="table table-hover align-middle mb-0">
         <thead>
           <tr>
             <th>Usuario</th>
@@ -148,34 +167,42 @@
             <td>{{ s.sucursal }}</td>
             <td>
               {% if s.activo %}
-                <span class="badge bg-success">Activo</span>
+                <span class="badge-migym success">Activo</span>
               {% else %}
-                <span class="badge bg-secondary">Inactivo</span>
+                <span class="badge-migym danger">Inactivo</span>
               {% endif %}
             </td>
-            <td class="text-end d-flex justify-content-end gap-2">
-              <a class="btn btn-sm btn-secondary" href="{% url 'socios:detalle' s.pk %}">Ver</a>
+            <td class="text-end">
+              <div class="btn-group-migym" style="justify-content: flex-end;">
+                <a class="btn-migym-ver" href="{% url 'socios:detalle' s.pk %}">
+                  <i class="bi bi-eye"></i> Ver
+                </a>
 
-              {% if s.activo %}
-                <!-- Confirmación para entrar a editar (opcional) -->
-                <a class="btn btn-sm btn-primary"
-                   href="{% url 'socios:editar' s.pk %}">Editar</a>
-                <form method="post"
-                      action="{% url 'socios:eliminar' s.pk %}"
-                      class="d-inline"
-                      onsubmit="return confirm('¿Desactivar al socio {{ s.user.get_full_name|default:s.user.username }}? Esta acción se puede revertir.')">
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-sm btn-outline-warning">Desactivar</button>
-                </form>
-              {% else %}
-                <form method="post"
-                      action="{% url 'socios:reactivar' s.pk %}"
-                      class="d-inline"
-                      onsubmit="return confirm('¿Reactivar al socio {{ s.user.get_full_name|default:s.user.username }}?')">
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-sm btn-outline-success">Reactivar</button>
-                </form>
-              {% endif %}
+                {% if s.activo %}
+                  <a class="btn-migym-editar" href="{% url 'socios:editar' s.pk %}">
+                    <i class="bi bi-pencil"></i> Editar
+                  </a>
+                  <form method="post"
+                        action="{% url 'socios:eliminar' s.pk %}"
+                        class="d-inline"
+                        onsubmit="return confirm('¿Desactivar al socio {{ s.user.get_full_name|default:s.user.username }}? Esta acción se puede revertir.')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-migym-eliminar">
+                      <i class="bi bi-x-circle"></i> Desactivar
+                    </button>
+                  </form>
+                {% else %}
+                  <form method="post"
+                        action="{% url 'socios:reactivar' s.pk %}"
+                        class="d-inline"
+                        onsubmit="return confirm('¿Reactivar al socio {{ s.user.get_full_name|default:s.user.username }}?')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-migym-primary" style="padding: 0.5rem 1rem !important; font-size: 0.875rem !important;">
+                      <i class="bi bi-check-circle"></i> Reactivar
+                    </button>
+                  </form>
+                {% endif %}
+              </div>
             </td>
           </tr>
           {% empty %}
@@ -187,45 +214,47 @@
       </table>
     </div>
 
-    <!-- Paginación solo en pantallas grandes -->
-    {% if page_obj.has_other_pages %}
-    <div class="card-footer d-none d-lg-flex flex-column" style="overflow: visible;">
-      <nav aria-label="Paginación de socios">
-        <ul class="pagination justify-content-center mb-2 flex-wrap" style="gap: 0.25rem;">
-          {% if page_obj.has_previous %}
-            <li class="page-item">
-              <a class="page-link" href="?page=1{% if request.GET.apellido %}&apellido={{ request.GET.apellido }}{% endif %}{% if estado_filtro %}&estado_activo={{ estado_filtro }}{% endif %}">Primera</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.apellido %}&apellido={{ request.GET.apellido }}{% endif %}{% if estado_filtro %}&estado_activo={{ estado_filtro }}{% endif %}">Anterior</a>
-            </li>
-          {% endif %}
-
-          {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-              <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-              <li class="page-item"><a class="page-link" href="?page={{ num }}{% if request.GET.apellido %}&apellido={{ request.GET.apellido }}{% endif %}{% if estado_filtro %}&estado_activo={{ estado_filtro }}{% endif %}">{{ num }}</a></li>
+      <!-- Paginación -->
+      {% if page_obj.has_other_pages %}
+      <div class="card-footer d-none d-lg-flex flex-column" style="overflow: visible;">
+        <nav aria-label="Paginación de socios">
+          <ul class="pagination justify-content-center mb-2 flex-wrap" style="gap: 0.25rem;">
+            {% if page_obj.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="?page=1{% if request.GET.apellido %}&apellido={{ request.GET.apellido }}{% endif %}{% if estado_filtro %}&estado_activo={{ estado_filtro }}{% endif %}">Primera</a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.apellido %}&apellido={{ request.GET.apellido }}{% endif %}{% if estado_filtro %}&estado_activo={{ estado_filtro }}{% endif %}">Anterior</a>
+              </li>
             {% endif %}
-          {% endfor %}
 
-          {% if page_obj.has_next %}
-            <li class="page-item">
-              <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.apellido %}&apellido={{ request.GET.apellido }}{% endif %}{% if estado_filtro %}&estado_activo={{ estado_filtro }}{% endif %}">Siguiente</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.apellido %}&apellido={{ request.GET.apellido }}{% endif %}{% if estado_filtro %}&estado_activo={{ estado_filtro }}{% endif %}">Última</a>
-            </li>
-          {% endif %}
-        </ul>
-      </nav>
-      <p class="text-center text-muted small mb-0">
-        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }} | 
-        Mostrando {{ page_obj.start_index }}-{{ page_obj.end_index }} de {{ page_obj.paginator.count }} socios
-      </p>
+            {% for num in page_obj.paginator.page_range %}
+              {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+              {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}{% if request.GET.apellido %}&apellido={{ request.GET.apellido }}{% endif %}{% if estado_filtro %}&estado_activo={{ estado_filtro }}{% endif %}">{{ num }}</a></li>
+              {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.apellido %}&apellido={{ request.GET.apellido }}{% endif %}{% if estado_filtro %}&estado_activo={{ estado_filtro }}{% endif %}">Siguiente</a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.apellido %}&apellido={{ request.GET.apellido }}{% endif %}{% if estado_filtro %}&estado_activo={{ estado_filtro }}{% endif %}">Última</a>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+        <p class="text-center text-muted small mb-0">
+          Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }} | 
+          Mostrando {{ page_obj.start_index }}-{{ page_obj.end_index }} de {{ page_obj.paginator.count }} socios
+        </p>
+      </div>
+      {% endif %}
     </div>
-    {% endif %}
-  </section>
+  </div>
+</div>
 
 </div>
 {% endblock %}

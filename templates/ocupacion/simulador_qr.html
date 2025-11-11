@@ -186,27 +186,6 @@
                 opacity: 0;
             }
         }
-        
-        .upload-zone {
-            background: var(--bg-dark);
-            border: 2px dashed var(--border-color);
-            border-radius: 15px;
-            padding: 3rem 2rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .upload-zone:hover {
-            border-color: var(--cyan);
-            background: rgba(6, 182, 212, 0.05);
-        }
-        
-        .upload-zone.drag-over {
-            border-color: var(--cyan);
-            background: rgba(6, 182, 212, 0.1);
-            transform: scale(1.02);
-        }
     </style>
 </head>
 <body>
@@ -250,24 +229,9 @@
             
             <!-- Método QR -->
             <div id="method-qr" class="method-content hidden">
-                <!-- Opción 1: Subir/Arrastrar archivo -->
-                <div class="upload-zone" id="upload-zone">
-                    <i class="bi bi-cloud-upload" style="font-size: 3rem; color: var(--cyan); margin-bottom: 1rem;"></i>
-                    <p class="mb-2" style="font-weight: 600;">Arrastra el QR aquí</p>
-                    <p class="text-muted mb-3" style="font-size: 0.875rem;">o haz click para seleccionar</p>
-                    <input type="file" 
-                           id="qr-file-input" 
-                           accept="image/*" 
-                           style="display: none;"
-                           onchange="handleFileSelect(event)">
-                    <button class="btn btn-outline-light btn-sm" onclick="document.getElementById('qr-file-input').click()">
-                        <i class="bi bi-folder2-open me-2"></i>Seleccionar Imagen
-                    </button>
-                </div>
-                
-                <!-- Opción 2: Escanear con cámara -->
-                <div class="text-center my-3">
-                    <button class="btn btn-outline-secondary" onclick="toggleCamera()" id="camera-toggle-btn">
+                <!-- Escanear con cámara -->
+                <div class="text-center mb-3">
+                    <button class="btn-primary-custom" onclick="toggleCamera()" id="camera-toggle-btn">
                         <i class="bi bi-camera me-2"></i>Usar Cámara
                     </button>
                 </div>
@@ -320,74 +284,6 @@
             }
         }
         
-        // Manejar selección de archivo
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (file) {
-                processImageFile(file);
-            }
-        }
-        
-        // Procesar imagen de QR
-        function processImageFile(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    // Crear canvas para procesar imagen
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
-                    
-                    // Obtener datos de imagen
-                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    
-                    // Usar html5-qrcode para decodificar
-                    Html5Qrcode.scanFile(file, true)
-                        .then(decodedText => {
-                            addLog(`✓ QR leído desde imagen: ${decodedText}`, 'success');
-                            processAccess(decodedText);
-                        })
-                        .catch(err => {
-                            addLog(`✗ No se pudo leer el QR de la imagen`, 'error');
-                            console.error(err);
-                        });
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-        
-        // Drag & Drop handlers
-        const uploadZone = document.getElementById('upload-zone');
-        
-        uploadZone.addEventListener('click', function() {
-            document.getElementById('qr-file-input').click();
-        });
-        
-        uploadZone.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            this.classList.add('drag-over');
-        });
-        
-        uploadZone.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            this.classList.remove('drag-over');
-        });
-        
-        uploadZone.addEventListener('drop', function(e) {
-            e.preventDefault();
-            this.classList.remove('drag-over');
-            
-            const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith('image/')) {
-                processImageFile(file);
-            } else {
-                addLog('Por favor arrastra una imagen válida', 'error');
-            }
-        });
         
         // Toggle cámara
         function toggleCamera() {
@@ -453,9 +349,17 @@
                     // Sonido de éxito
                     playSuccessSound();
                 } else {
-                    const error = data.error || 'No se pudo registrar el acceso';
-                    addLog(`✗ Error: ${error}`, 'error');
-                    showToast(`✗ ${error}`, 'error');
+                    // Manejar errores de validación (403) y otros errores
+                    if (response.status === 403 && data.status === 'error') {
+                        const mensaje = data.message || 'Acceso denegado';
+                        const detalle = data.detail || '';
+                        addLog(`❌ ${mensaje}: ${detalle}`, 'error');
+                        showToast(`❌ ${mensaje}\n${detalle}`, 'error');
+                    } else {
+                        const error = data.error || data.detail || 'No se pudo registrar el acceso';
+                        addLog(`✗ Error: ${error}`, 'error');
+                        showToast(`✗ ${error}`, 'error');
+                    }
                 }
             } catch (error) {
                 addLog(`✗ Error de conexión: ${error.message}`, 'error');
@@ -489,17 +393,33 @@
                 const data = await response.json();
                 
                 if (response.ok) {
-                    const mensaje = data.message || 'Acceso registrado exitosamente';
+                    // Obtener nombre del socio desde la respuesta
                     const nombre = data.socio_nombre || email.split('@')[0];
-                    addLog(`✓ ${mensaje} - ${nombre}`, 'success');
-                    showToast(`✓ ${mensaje.toUpperCase()}`, 'success');
+                    // Usar tipo_registro que contiene "Ingreso" o "Egreso"
+                    const tipoAcceso = data.tipo_registro === 'Egreso' ? 'SALIDA' : 'INGRESO';
                     
-                    // Sonido de éxito (opcional)
+                    if (tipoAcceso === 'INGRESO') {
+                        addLog(`✓ INGRESO EXITOSO - ${nombre}`, 'success');
+                        showToast(`✓ INGRESO EXITOSO\n¡Bienvenido ${nombre}!`, 'success');
+                    } else {
+                        addLog(`✓ SALIDA REGISTRADA - ${nombre}`, 'success');
+                        showToast(`✓ SALIDA REGISTRADA\n¡Hasta pronto ${nombre}!`, 'success');
+                    }
+                    
+                    // Sonido de éxito
                     playSuccessSound();
                 } else {
-                    const error = data.error || 'No se pudo registrar el acceso';
-                    addLog(`✗ Error: ${error} - ${email}`, 'error');
-                    showToast(`✗ ${error}`, 'error');
+                    // Manejar errores de validación (403) y otros errores
+                    if (response.status === 403 && data.status === 'error') {
+                        const mensaje = data.message || 'Acceso denegado';
+                        const detalle = data.detail || '';
+                        addLog(`❌ ${mensaje}: ${detalle} - ${email}`, 'error');
+                        showToast(`❌ ${mensaje}\n${detalle}`, 'error');
+                    } else {
+                        const error = data.error || data.detail || 'No se pudo registrar el acceso';
+                        addLog(`✗ Error: ${error} - ${email}`, 'error');
+                        showToast(`✗ ${error}`, 'error');
+                    }
                 }
             } catch (error) {
                 addLog(`✗ Error de conexión: ${error.message}`, 'error');

@@ -45,6 +45,10 @@ def role_redirect(request):
 @role_required("Administrador")
 def admin_dashboard(request):
     from aplications.ocupacion.models import ActiveSession, Sucursal
+    from aplications.socios.models import Socio
+    from aplications.pagos.models import Suscripcion
+    from django.utils import timezone
+    from django.db.models import Q
     
     # Usar ActiveSession (igual que el simulador)
     active_sessions = ActiveSession.objects.filter(status="ACTIVE").select_related('member__sucursal')
@@ -91,9 +95,19 @@ def admin_dashboard(request):
         })
         print(f"Sucursal {s.id} ({s.nombre}): ocupacion={occ}, capacidad={cap}, porcentaje={pct}")
     
+    # Estadísticas de socios
+    socios_activos = Socio.objects.filter(activo=True).count()
+    socios_inactivos = Socio.objects.filter(activo=False).count()
+    total_socios = socios_activos + socios_inactivos
+    
+    # Suscripciones vencidas (estado Vencida)
+    suscripciones_vencidas = Suscripcion.objects.filter(estado="Vencida").count()
+    
     data = {
-        "total_socios": 0,
-        "cuotas_pendientes": 0,
+        "total_socios": total_socios,
+        "socios_activos": socios_activos,
+        "socios_inactivos": socios_inactivos,
+        "suscripciones_vencidas": suscripciones_vencidas,
         "ocupacion_global": total_ocupacion,
         "capacidad_global": total_capacidad,
         "sucursales": sucursales_data,

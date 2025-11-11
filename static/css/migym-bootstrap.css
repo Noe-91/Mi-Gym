@@ -7,16 +7,16 @@
   /* Colores de marca */
   --migym-cyan: #06b6d4;
   --migym-orange: #ff9800;
-  --migym-dark: #0a0e1a;
-  --migym-panel: #111827;
-  --migym-border: #1f2937;
+  --migym-dark: #000000;
+  --migym-panel: #000000;
+  --migym-border: #222222;
   --migym-text: #e5e7eb;
   --migym-text-muted: #9ca3af;
   
   /* Bootstrap overrides */
-  --bs-body-bg: var(--migym-dark);
+  --bs-body-bg: #000000;
   --bs-body-color: var(--migym-text);
-  --bs-border-color: var(--migym-border);
+  --bs-border-color: #222222;
   --bs-border-radius: 0.75rem;
   --bs-border-radius-sm: 0.5rem;
   --bs-border-radius-lg: 1rem;
@@ -38,7 +38,7 @@
    BODY & LAYOUT
    ============================================ */
 body {
-  background: var(--migym-dark);
+  background: #000000 !important;
   color: var(--migym-text);
   font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
   min-height: 100vh;
@@ -48,13 +48,13 @@ body {
    CARDS & PANELS
    ============================================ */
 .card {
-  background: var(--migym-panel);
+  background: #000000;
   border: 1px solid var(--migym-border);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: none;
 }
 
 .card-header {
-  background: rgba(6, 182, 212, 0.1);
+  background: #000000;
   border-bottom: 1px solid var(--migym-border);
   color: var(--migym-text);
   font-weight: 600;

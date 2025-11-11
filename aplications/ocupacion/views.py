@@ -143,7 +143,7 @@ def access_event(request):
     if not sucursal:
         return JsonResponse({"detail": "no hay sucursal disponible (creá una en /admin)"}, status=400)
 
-    # 3) AUTO-DETECTAR tipo según último acceso (para QR)
+    # 3) AUTO-DETECTAR tipo según último acceso (para QR) - PRIMERO ANTES DE VALIDAR
     from django.utils import timezone
     from .models import Acceso, ActiveSession
     
@@ -160,6 +160,45 @@ def access_event(request):
     else:
         # Para RFID y otros, usar el type del request
         tipo = "Ingreso" if atype == "IN" else "Egreso"
+    
+    # 3.1) VALIDACIONES DE INGRESO - Solo para ingresos (IN) - DESPUÉS DE AUTO-DETECTAR
+    if atype == "IN":
+        # Validar si el socio está desactivado
+        if not socio.activo:
+            return JsonResponse({
+                "status": "error",
+                "message": "SOCIO DESACTIVADO",
+                "detail": "Tu membresía está desactivada. Por favor, presentate en recepción para más información."
+            }, status=403)
+        
+        # Validar si tiene suscripción vencida
+        from aplications.socios.models import Suscripcion
+        
+        # Buscar suscripción vigente
+        suscripcion_vigente = Suscripcion.objects.filter(
+            socio=socio,
+            estado="Vigente"
+        ).first()
+        
+        if not suscripcion_vigente:
+            # Verificar si tiene alguna suscripción vencida
+            suscripcion_vencida = Suscripcion.objects.filter(
+                socio=socio,
+                estado="Vencida"
+            ).exists()
+            
+            if suscripcion_vencida:
+                mensaje = "SUSCRIPCIÓN VENCIDA"
+                detalle = "Tu suscripción ha vencido. Por favor, presentate en recepción para renovar tu membresía."
+            else:
+                mensaje = "SIN SUSCRIPCIÓN ACTIVA"
+                detalle = "No tienes una suscripción activa. Por favor, presentate en recepción."
+            
+            return JsonResponse({
+                "status": "error",
+                "message": mensaje,
+                "detail": detalle
+            }, status=403)
     
     # 4) Crear movimiento en Acceso
     try:

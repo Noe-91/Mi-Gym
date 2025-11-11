@@ -50,31 +50,39 @@
               {% endif %}
             </td>
             <td>
-              <span class="badge bg-secondary">{{ rutina.dias.count }} día{{ rutina.dias.count|pluralize }}</span>
+              <span class="badge-migym info">{{ rutina.dias.count }} día{{ rutina.dias.count|pluralize }}</span>
             </td>
             <td>
               {% if rutina.activa %}
-                <span class="badge bg-success">Activa</span>
+                <span class="badge-migym success">Activa</span>
               {% else %}
-                <span class="badge bg-danger">Inactiva</span>
+                <span class="badge-migym danger">Inactiva</span>
               {% endif %}
             </td>
-            <td class="text-end d-flex justify-content-end gap-2">
-              <a class="btn btn-sm btn-secondary" href="{% url 'configuracion:rutina_detalle' rutina.pk %}">Ver</a>
-              <a class="btn btn-sm btn-primary"
-                 href="{% url 'configuracion:rutina_editar' rutina.pk %}"
-                 data-confirm="¿Editar rutina {{ rutina.nombre }}?"
-                 data-confirm-ok="Editar"
-                 data-confirm-cancel="Cancelar">Editar</a>
-              <form method="post"
-                    action="{% url 'configuracion:rutina_eliminar' rutina.pk %}"
-                    class="d-inline"
-                    data-confirm="¿Eliminar la rutina {{ rutina.nombre }}? Esta acción no se puede deshacer."
-                    data-confirm-ok="Eliminar"
-                    data-confirm-cancel="Cancelar">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
-              </form>
+            <td class="text-end">
+              <div class="btn-group-migym" style="justify-content: flex-end;">
+                <a class="btn-migym-ver" href="{% url 'configuracion:rutina_detalle' rutina.pk %}">
+                  <i class="bi bi-eye"></i> Ver
+                </a>
+                <a class="btn-migym-editar"
+                   href="{% url 'configuracion:rutina_editar' rutina.pk %}"
+                   data-confirm="¿Editar rutina {{ rutina.nombre }}?"
+                   data-confirm-ok="Editar"
+                   data-confirm-cancel="Cancelar">
+                  <i class="bi bi-pencil"></i> Editar
+                </a>
+                <form method="post"
+                      action="{% url 'configuracion:rutina_eliminar' rutina.pk %}"
+                      class="d-inline"
+                      data-confirm="¿Eliminar la rutina {{ rutina.nombre }}? Esta acción no se puede deshacer."
+                      data-confirm-ok="Eliminar"
+                      data-confirm-cancel="Cancelar">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-migym-eliminar">
+                    <i class="bi bi-trash"></i> Eliminar
+                  </button>
+                </form>
+              </div>
             </td>
           </tr>
           {% empty %}

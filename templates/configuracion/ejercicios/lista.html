@@ -62,7 +62,7 @@
             <td><strong>{{ ejercicio.nombre }}</strong></td>
             <td>
               {% if ejercicio.grupo_muscular %}
-                <span class="badge bg-info">{{ ejercicio.grupo_muscular }}</span>
+                <span class="badge-migym info">{{ ejercicio.grupo_muscular }}</span>
               {% else %}
                 <span class="text-muted">-</span>
               {% endif %}
@@ -70,26 +70,32 @@
             <td>{{ ejercicio.descripcion|truncatewords:10|default:"-" }}</td>
             <td>
               {% if ejercicio.activo %}
-                <span class="badge bg-success">Activo</span>
+                <span class="badge-migym success">Activo</span>
               {% else %}
-                <span class="badge bg-danger">Inactivo</span>
+                <span class="badge-migym danger">Inactivo</span>
               {% endif %}
             </td>
-            <td class="text-end d-flex justify-content-end gap-2">
-              <a class="btn btn-sm btn-primary"
-                 href="{% url 'configuracion:ejercicio_editar' ejercicio.pk %}"
-                 data-confirm="¿Editar ejercicio {{ ejercicio.nombre }}?"
-                 data-confirm-ok="Editar"
-                 data-confirm-cancel="Cancelar">Editar</a>
-              <form method="post"
-                    action="{% url 'configuracion:ejercicio_eliminar' ejercicio.pk %}"
-                    class="d-inline"
-                    data-confirm="¿Eliminar el ejercicio {{ ejercicio.nombre }}? Esta acción no se puede deshacer."
-                    data-confirm-ok="Eliminar"
-                    data-confirm-cancel="Cancelar">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
-              </form>
+            <td class="text-end">
+              <div class="btn-group-migym" style="justify-content: flex-end;">
+                <a class="btn-migym-editar"
+                   href="{% url 'configuracion:ejercicio_editar' ejercicio.pk %}"
+                   data-confirm="¿Editar ejercicio {{ ejercicio.nombre }}?"
+                   data-confirm-ok="Editar"
+                   data-confirm-cancel="Cancelar">
+                  <i class="bi bi-pencil"></i> Editar
+                </a>
+                <form method="post"
+                      action="{% url 'configuracion:ejercicio_eliminar' ejercicio.pk %}"
+                      class="d-inline"
+                      data-confirm="¿Eliminar el ejercicio {{ ejercicio.nombre }}? Esta acción no se puede deshacer."
+                      data-confirm-ok="Eliminar"
+                      data-confirm-cancel="Cancelar">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-migym-eliminar">
+                    <i class="bi bi-trash"></i> Eliminar
+                  </button>
+                </form>
+              </div>
             </td>
           </tr>
           {% empty %}

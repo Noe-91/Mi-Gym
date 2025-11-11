@@ -31,7 +31,15 @@ while True:
             "device_id": args.device
         }
         r = requests.post(args.api, json=payload_in, headers=headers)
-        print("IN ->", r.status_code, r.text)
+        if r.status_code == 403:
+            try:
+                error_data = r.json()
+                print(f"❌ ACCESO DENEGADO: {error_data.get('message', '')}")
+                print(f"   {error_data.get('detail', '')}")
+            except:
+                print("IN ->", r.status_code, r.text)
+        else:
+            print("IN ->", r.status_code, r.text)
         time.sleep(1)
         payload_out = payload_in.copy()
         payload_out["type"] = "OUT"

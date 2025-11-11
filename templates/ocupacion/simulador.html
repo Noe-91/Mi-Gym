@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MiGym · Simulador de Accesos</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <style>
   :root{
     --bg:#0b0f19; --panel:#0f172a; --card:#111827; --muted:#9aa4ad;
@@ -48,6 +49,15 @@
   <header>
     <span class="badge">Demo</span>
     <h1>MiGym Registro · Simulador de Entradas/Salidas</h1>
+    <div style="margin-top: 1rem; display: flex; gap: 1rem; align-items: center;">
+      <button onclick="copiarRutaQR()" 
+         style="padding: 0.5rem 1rem; background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="bi bi-qr-code-scan"></i> <span id="btn-text">Copiar Ruta Simulador QR</span>
+      </button>
+      <span id="msg-copiado" style="color: #22c55e; font-size: 0.85rem; display: none;">
+        ✓ Ruta copiada! Pégala en el navegador
+      </span>
+    </div>
   </header>
 
   <div class="wrap">
@@ -152,7 +162,12 @@
         showStatus(`✅ ${tipo === "IN" ? "Entrada" : "Salida"} registrada`, "ok");
         await refreshOcupacion();
       } else {
-        showStatus(`⚠️ ${data.detail || data.status || "Error en la solicitud"}`, "warn");
+        // Mostrar mensajes de error más descriptivos
+        if (data.status === "error" && data.message) {
+          showStatus(`❌ ${data.message}: ${data.detail || ''}`, "err");
+        } else {
+          showStatus(`⚠️ ${data.detail || data.message || data.status || "Error en la solicitud"}`, "warn");
+        }
       }
     } catch (e) {
       showStatus("❌ No se pudo conectar con el backend", "err");
@@ -187,6 +202,23 @@
   // Polling cada 5s
   refreshOcupacion();
   setInterval(refreshOcupacion, 5000);
+
+  // Copiar ruta del simulador QR
+  function copiarRutaQR() {
+    const ruta = "file:///C:/Users/Usuario/Desktop/2025/migym_ultimo/Mi-Gym/tools/simulador_qr.html";
+    navigator.clipboard.writeText(ruta).then(() => {
+      const msg = document.getElementById('msg-copiado');
+      const btn = document.getElementById('btn-text');
+      msg.style.display = 'inline';
+      btn.textContent = '¡Copiado!';
+      setTimeout(() => {
+        msg.style.display = 'none';
+        btn.textContent = 'Copiar Ruta Simulador QR';
+      }, 3000);
+    }).catch(err => {
+      alert('Ruta: file:///C:/Users/Usuario/Desktop/2025/migym_ultimo/Mi-Gym/tools/simulador_qr.html');
+    });
+  }
 </script>
 </body>
 </html>

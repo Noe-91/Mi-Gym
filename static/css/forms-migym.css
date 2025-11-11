@@ -1,0 +1,469 @@
+/* ========================================
+   FORMULARIOS ESTILO MIGYM (basado en simulador QR)
+   ======================================== */
+
+:root {
+    --migym-cyan: #06b6d4;
+    --migym-orange: #ff7a00;
+    --migym-bg-dark: #000000;
+    --migym-panel-bg: #000000;
+    --migym-border: #222222;
+    --migym-text-primary: #e5e7eb;
+    --migym-text-secondary: #9ca3af;
+    --migym-input-bg: #000000;
+}
+
+/* ========== CONTENEDOR DE FORMULARIOS ========== */
+.form-migym-container {
+    max-width: 900px;
+    margin: 1.5rem auto;
+    padding: 0 1rem;
+}
+
+.form-migym-card {
+    background: #000000;
+    border: 1px solid var(--migym-border);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: none;
+}
+
+.form-migym-header {
+    text-align: left;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.form-migym-header h1,
+.form-migym-header h2 {
+    color: var(--migym-text-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0 0 0.3rem 0;
+}
+
+.form-migym-header p {
+    color: var(--migym-text-secondary);
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+/* ========== CAMPOS DE FORMULARIO ========== */
+.form-group-migym {
+    margin-bottom: 1.2rem;
+}
+
+.form-label-migym {
+    display: block;
+    color: var(--migym-text-primary);
+    font-weight: 500;
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+}
+
+.form-control-migym,
+.form-select-migym,
+input.form-control,
+select.form-select,
+textarea.form-control {
+    background: var(--migym-input-bg) !important;
+    border: 1px solid var(--migym-border) !important;
+    color: var(--migym-text-primary) !important;
+    padding: 0.875rem 1rem !important;
+    border-radius: 10px !important;
+    width: 100%;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.form-control-migym:focus,
+.form-select-migym:focus,
+input.form-control:focus,
+select.form-select:focus,
+textarea.form-control:focus {
+    background: var(--migym-input-bg) !important;
+    border-color: var(--migym-cyan) !important;
+    color: var(--migym-text-primary) !important;
+    box-shadow: 0 0 0 0.2rem rgba(6, 182, 212, 0.25) !important;
+    outline: none;
+}
+
+/* Placeholders */
+.form-control-migym::placeholder,
+input.form-control::placeholder,
+textarea.form-control::placeholder {
+    color: var(--migym-text-secondary);
+    opacity: 0.8;
+}
+
+/* Select options */
+select.form-select option {
+    background: #000000 !important;
+    color: var(--migym-text-primary) !important;
+    padding: 0.5rem;
+}
+
+/* ========== BOTONES UNIFICADOS ========== */
+
+/* Botón Primary (Guardar, Crear, Confirmar) - MINIMALISTA CYAN */
+.btn-migym-primary,
+.btn.btn-primary,
+a.btn-primary,
+button.btn-primary {
+    background: transparent !important;
+    border: 1.5px solid var(--migym-cyan) !important;
+    color: var(--migym-cyan) !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 5px !important;
+    font-weight: 500 !important;
+    font-size: 0.75rem !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.25rem !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.btn-migym-primary:hover,
+.btn.btn-primary:hover,
+a.btn-primary:hover,
+button.btn-primary:hover {
+    background: rgba(6, 182, 212, 0.1) !important;
+    border-color: var(--migym-cyan) !important;
+    color: var(--migym-cyan) !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Botón Secondary/Cancelar - MINIMALISTA GRIS */
+.btn-migym-secondary,
+.btn.btn-outline-primary,
+a.btn-outline-primary,
+button.btn-outline-primary,
+.btn.btn-secondary,
+a.btn-secondary,
+button.btn-secondary {
+    background: transparent !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
+    color: var(--migym-text-primary) !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 5px !important;
+    font-weight: 500 !important;
+    font-size: 0.75rem !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.25rem !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.btn-migym-secondary:hover,
+.btn.btn-outline-primary:hover,
+a.btn-outline-primary:hover,
+button.btn-outline-primary:hover,
+.btn.btn-secondary:hover,
+a.btn-secondary:hover,
+button.btn-secondary:hover {
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    color: white !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Botón Ver (Cyan) - MINIMALISTA */
+.btn-migym-ver,
+.btn-info {
+    background: transparent !important;
+    border: 1.5px solid var(--migym-cyan) !important;
+    color: var(--migym-cyan) !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 5px !important;
+    font-weight: 500 !important;
+    font-size: 0.75rem !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.btn-migym-ver:hover,
+.btn-info:hover {
+    background: rgba(6, 182, 212, 0.1) !important;
+    border-color: var(--migym-cyan) !important;
+    color: var(--migym-cyan) !important;
+}
+
+/* Botón Editar (Naranja) - MINIMALISTA */
+.btn-migym-editar,
+.btn-warning {
+    background: transparent !important;
+    border: 1.5px solid var(--migym-orange) !important;
+    color: var(--migym-orange) !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 5px !important;
+    font-weight: 500 !important;
+    font-size: 0.75rem !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.btn-migym-editar:hover,
+.btn-warning:hover {
+    background: rgba(255, 122, 0, 0.1) !important;
+    border-color: var(--migym-orange) !important;
+    color: var(--migym-orange) !important;
+}
+
+/* Botón Eliminar (Rojo) - MINIMALISTA */
+.btn-migym-eliminar,
+.btn-danger {
+    background: transparent !important;
+    border: 1.5px solid #ef4444 !important;
+    color: #ef4444 !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 5px !important;
+    font-weight: 500 !important;
+    font-size: 0.75rem !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.btn-migym-eliminar:hover,
+.btn-danger:hover {
+    background: rgba(239, 68, 68, 0.1) !important;
+    border-color: #ef4444 !important;
+    color: #ef4444 !important;
+}
+
+/* Grupo de botones de acción (Ver, Editar, Eliminar) */
+.btn-group-migym {
+    display: flex;
+    gap: 0.3rem;
+    align-items: center;
+}
+
+/* ========== GRILLAS RESPONSIVE ========== */
+.form-row-migym {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-row-migym-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .form-row-migym-2col {
+        grid-template-columns: 1fr;
+    }
+    
+    .btn-migym-primary,
+    .btn-migym-secondary {
+        width: 100%;
+    }
+    
+    .btn-group-migym {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .btn-group-migym > * {
+        width: 100%;
+    }
+}
+
+/* ========== ALERTAS ========== */
+.alert-migym {
+    background: #000000;
+    border: 1px solid #ef4444;
+    border-left: 3px solid #ef4444;
+    color: #fecaca;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.alert-migym.success {
+    background: #000000;
+    border-color: #10b981;
+    border-left-color: #10b981;
+    color: #6ee7b7;
+}
+
+.alert-migym.info {
+    background: #000000;
+    border-color: var(--migym-cyan);
+    border-left-color: var(--migym-cyan);
+    color: #67e8f9;
+}
+
+/* ========== TABLAS ========== */
+.table-migym,
+.table {
+    width: 100%;
+    background: #000000 !important;
+    border: 1px solid var(--migym-border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table-migym thead,
+.table thead {
+    background: #000000 !important;
+}
+
+.table-migym th,
+.table th {
+    color: var(--migym-cyan) !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    padding: 1rem !important;
+    border-bottom: 2px solid var(--migym-border) !important;
+    border-top: none !important;
+}
+
+.table-migym td,
+.table td {
+    color: var(--migym-text-primary) !important;
+    padding: 1rem !important;
+    border-bottom: 1px solid var(--migym-border) !important;
+    border-top: 1px solid var(--migym-border) !important;
+}
+
+.table-migym tbody tr:hover,
+.table tbody tr:hover {
+    background: rgba(6, 182, 212, 0.05) !important;
+}
+
+.table-migym tbody tr:last-child td,
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Arreglar bordes de Bootstrap */
+.table-bordered {
+    border-color: var(--migym-border) !important;
+}
+
+.table-bordered th,
+.table-bordered td {
+    border-color: var(--migym-border) !important;
+}
+
+/* ========== BADGES/PILLS ========== */
+.badge-migym {
+    padding: 0.25rem 0.5rem;
+    border-radius: 5px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    display: inline-block;
+    background: transparent;
+}
+
+.badge-migym.success {
+    border: 1.5px solid #10b981;
+    color: #6ee7b7;
+}
+
+.badge-migym.warning {
+    border: 1.5px solid var(--migym-orange);
+    color: #ffa85c;
+}
+
+.badge-migym.danger {
+    border: 1.5px solid #ef4444;
+    color: #fca5a5;
+}
+
+.badge-migym.info {
+    border: 1.5px solid var(--migym-cyan);
+    color: #67e8f9;
+}
+
+/* ========== CARDS ========== */
+.card-migym,
+.card {
+    background: #000000 !important;
+    border: 1px solid var(--migym-border) !important;
+    border-radius: 8px !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
+.card-body {
+    background: transparent !important;
+    padding: 0.5rem 0.75rem !important;
+}
+
+.card-migym-header {
+    border-bottom: 1px solid var(--migym-border);
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-migym-header h3 {
+    color: var(--migym-text-primary);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Títulos principales */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--migym-text-primary) !important;
+}
+
+/* Texto secundario */
+.text-body-secondary,
+.text-muted {
+    color: var(--migym-text-secondary) !important;
+}
+
+/* Labels de formularios */
+.form-label {
+    color: var(--migym-text-primary) !important;
+    font-weight: 500;
+}
+
+/* ========== ICONOS EN BOTONES ========== */
+.btn-migym-ver i,
+.btn-migym-editar i,
+.btn-migym-eliminar i,
+.btn-migym-primary i,
+.btn-migym-secondary i {
+    font-size: 0.85rem;
+}
+
+/* ========== LOADING STATES ========== */
+.btn-migym-primary:disabled,
+.btn-migym-ver:disabled,
+.btn-migym-editar:disabled,
+.btn-migym-eliminar:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
